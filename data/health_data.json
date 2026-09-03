@@ -1,0 +1,209 @@
+{
+  "members": [
+    {
+      "id": "mom",
+      "name": "妈妈",
+      "relation": "母亲",
+      "role": "elder",
+      "avatar": "👵",
+      "isElderlyModeDefault": true,
+      "notes": "重点关注：夜间睡眠呼吸机使用达标情况（AHI<5, 漏气<24L/min）"
+    },
+    {
+      "id": "dad",
+      "name": "爸爸",
+      "relation": "父亲",
+      "role": "elder",
+      "avatar": "👴",
+      "isElderlyModeDefault": true,
+      "notes": "重点关注：每日早晚血压监控（目标高压<130, 低压<80）"
+    },
+    {
+      "id": "me",
+      "name": "我 (Quentin)",
+      "relation": "本人/管家",
+      "role": "admin",
+      "avatar": "🧑‍💻",
+      "isElderlyModeDefault": false,
+      "notes": "家庭健康管理者与数据同步总控"
+    },
+    {
+      "id": "dog_1",
+      "name": "毛孩子 1 (可可)",
+      "relation": "爱犬",
+      "role": "pet",
+      "avatar": "🐶",
+      "breed": "金毛寻回犬",
+      "isElderlyModeDefault": false,
+      "notes": "定期体内外驱虫、狂犬疫苗、体态与关节保护"
+    },
+    {
+      "id": "dog_2",
+      "name": "毛孩子 2 (豆豆)",
+      "relation": "爱犬",
+      "role": "pet",
+      "avatar": "🐕",
+      "breed": "贵宾犬",
+      "isElderlyModeDefault": false,
+      "notes": "牙齿护理、体重管理与日常饮食监控"
+    }
+  ],
+  "cpapRecords": [
+    {
+      "id": "cpap-1",
+      "date": "2026-08-21",
+      "usageHours": 6.4,
+      "pressure": 8.4,
+      "leakRate": 5,
+      "ahi": 0.9,
+      "totalAi": 0.9,
+      "centralAi": 0.3,
+      "aiFeedback": "太棒了！昨晚呼吸暂停仅 0.9 次/小时（远低于5次标准），漏气量5L/min密封极佳，睡眠达标！",
+      "timestamp": "2026-08-21T18:18:12.089Z"
+    },
+    {
+      "id": "cpap-2",
+      "date": "2026-08-20",
+      "usageHours": 6.8,
+      "pressure": 8.4,
+      "leakRate": 7,
+      "ahi": 1.2,
+      "totalAi": 1.2,
+      "centralAi": 0.2,
+      "aiFeedback": "使用时长达标，AHI处于理想正常范围，面罩贴合良好。",
+      "timestamp": "2026-08-20T18:18:12.089Z"
+    },
+    {
+      "id": "cpap-3",
+      "date": "2026-08-19",
+      "usageHours": 7.1,
+      "pressure": 8.6,
+      "leakRate": 6.5,
+      "ahi": 1.5,
+      "totalAi": 1.5,
+      "centralAi": 0.4,
+      "aiFeedback": "持续保持良好佩戴习惯，深度睡眠状态稳定。",
+      "timestamp": "2026-08-19T18:18:12.089Z"
+    },
+    {
+      "id": "cpap-4",
+      "date": "2026-08-18",
+      "usageHours": 5.8,
+      "pressure": 8.4,
+      "leakRate": 18,
+      "ahi": 2.8,
+      "totalAi": 2.8,
+      "centralAi": 0.5,
+      "aiFeedback": "漏气量稍偏大(18L/min)，建议今晚佩戴时稍调紧头带以防漏气。",
+      "timestamp": "2026-08-18T18:18:12.089Z"
+    }
+  ],
+  "bpRecords": [
+    {
+      "id": "bp-1",
+      "date": "2026-08-21",
+      "period": "早晨",
+      "systolic": 128,
+      "diastolic": 78,
+      "heartRate": 72,
+      "status": "正常",
+      "aiFeedback": "今晨血压非常理想，在标准范围(130/80以下)，请保持规律作息。",
+      "timestamp": "2026-08-21T18:18:12.089Z"
+    },
+    {
+      "id": "bp-2",
+      "date": "2026-08-20",
+      "period": "晚间",
+      "systolic": 136,
+      "diastolic": 84,
+      "heartRate": 75,
+      "status": "偏高需关注",
+      "aiFeedback": "收缩压略高(136)，可能与晚餐盐分或疲劳有关，建议温水泡脚并早点休息。",
+      "timestamp": "2026-08-20T18:18:12.089Z"
+    },
+    {
+      "id": "bp-3",
+      "date": "2026-08-20",
+      "period": "早晨",
+      "systolic": 132,
+      "diastolic": 82,
+      "heartRate": 70,
+      "status": "偏高需关注",
+      "aiFeedback": "高压轻微波动，请记得按医嘱在早餐后服用降压药。",
+      "timestamp": "2026-08-20T18:18:12.089Z"
+    },
+    {
+      "id": "bp-4",
+      "date": "2026-08-19",
+      "period": "早晨",
+      "systolic": 126,
+      "diastolic": 76,
+      "heartRate": 68,
+      "status": "正常",
+      "aiFeedback": "血压平稳达标。",
+      "timestamp": "2026-08-19T18:18:12.089Z"
+    }
+  ],
+  "mealRecords": [
+    {
+      "id": "meal-1",
+      "date": "2026-08-21",
+      "mealType": "午餐",
+      "dishName": "清蒸鲈鱼 + 白灼菜心 + 杂粮米饭",
+      "saltAssessment": "低盐",
+      "oilAssessment": "清淡",
+      "advice": "非常健康的心脑血管适老搭配！优质蛋白质丰富，深绿蔬菜富含钾离子有助降压。",
+      "targetMember": "爸爸/全家"
+    },
+    {
+      "id": "meal-2",
+      "date": "2026-08-20",
+      "mealType": "晚餐",
+      "dishName": "红烧排骨 + 酱黄瓜 + 豆腐汤",
+      "saltAssessment": "偏高",
+      "oilAssessment": "油腻",
+      "advice": "腌制酱黄瓜钠含量偏高，红烧排骨油脂较重。建议爸爸减少腌菜摄入，汤品保持少盐清淡。",
+      "targetMember": "爸爸"
+    }
+  ],
+  "medicalArchives": [
+    {
+      "id": "med-1",
+      "date": "2026-03-15",
+      "member": "妈妈",
+      "fileName": "2026-03-15_妈妈_睡眠呼吸监测评估报告.pdf",
+      "driveLink": "https://drive.google.com/drive/folders/19q_VQjr7G7sY3kGmHvL3FBVuhKg-B9xM",
+      "summary": "睡眠多导监测显示中度阻塞性睡眠呼吸暂停低通气综合征 (OSAHS)，建议持续使用 CPAP 呼吸机治疗。",
+      "aiInterpretation": "评估建议保持当前 8.4 cmH2O 恒定压力，定期清洗水盒与面罩。"
+    },
+    {
+      "id": "med-2",
+      "date": "2026-02-10",
+      "member": "爸爸",
+      "fileName": "2026-02-10_爸爸_心血管专科体检汇总.pdf",
+      "driveLink": "https://drive.google.com/drive/folders/10Iscm_ByQ17-2M6v4-PgumOBj2B1phZF",
+      "summary": "原发性高血压 2 级，颈动脉内中膜轻度增厚，血脂总胆固醇 5.6 mmol/L 略高。",
+      "aiInterpretation": "维持缬沙坦降压治疗，建议低钠饮食（每日食盐<5g），每月随访血压。"
+    }
+  ],
+  "petRecords": [
+    {
+      "id": "pet-1",
+      "date": "2026-08-21",
+      "petName": "毛孩子 1 (可可)",
+      "type": "体外驱虫",
+      "detail": "完成福来恩外驱滴剂滴用",
+      "nextDueDate": "2026-09-20",
+      "notes": "无皮肤红肿反应，状态活泼。"
+    },
+    {
+      "id": "pet-2",
+      "date": "2026-08-06",
+      "petName": "毛孩子 2 (豆豆)",
+      "type": "体重记录",
+      "detail": "体重 4.2 kg (上月 4.3 kg)",
+      "nextDueDate": "2026-09-05",
+      "notes": "体态健康，保持早晚各溜达 20 分钟。"
+    }
+  ]
+}
