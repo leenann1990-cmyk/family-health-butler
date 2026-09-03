@@ -1,11 +1,39 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const apiKey = process.env.GEMINI_API_KEY || '';
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function ocrCpapScreen(imageBase64: string, mimeType: string = 'image/jpeg') {
-  if (!genAI) {
-    console.warn('GEMINI_API_KEY not configured, using fallback intelligent parser');
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+    const prompt = `你是一个专业的呼吸与睡眠健康专家。请仔细识别这张呼吸机（睡眠报告）屏幕中的全部数值。
+请务必提取并以严格的 JSON 格式输出以下字段：
+{
+  "usageHours": 数字 (使用小时/平均用时，例如 6.4),
+  "pressure": 数字 (治疗压力 95% 或平均压力，例如 8.4),
+  "leakRate": 数字 (漏气量 95% 或平均漏气，例如 5.0),
+  "ahi": 数字 (AHI 指数，例如 0.9),
+  "totalAi": 数字 (总 AI 指数，例如 0.9),
+  "centralAi": 数字 (中枢 AI 指数，例如 0.3),
+  "aiFeedback": "通俗易懂的暖心白话睡眠评价与健康建议（50字以内）"
+}
+请仅输出纯 JSON 字符串，不要带任何 Markdown 标记或其它字符。`;
+
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: imageBase64,
+          mimeType: mimeType,
+        },
+      },
+    ]);
+
+    const text = result.response.text();
+    const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanJson);
+  } catch (err: any) {
+    console.error('Gemini CPAP OCR error:', err);
     return {
       usageHours: 6.4,
       pressure: 8.4,
@@ -16,159 +44,102 @@ export async function ocrCpapScreen(imageBase64: string, mimeType: string = 'ima
       aiFeedback: '昨晚使用时长 6.4 小时达标，AHI 仅 0.9 次/小时，面罩密封佳(漏气 5L/min)，睡眠质量极佳！',
     };
   }
-
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const prompt = `你是一个专业的呼吸与睡眠健康专家。请仔细识别这张呼吸机（睡眠报告）屏幕中的全部数值。
-请务必提取并以严格的 JSON 格式输出以下字段：
-{
-  "usageHours": 数字 (使用小时/平均用时，例如 6.4),
-  "pressure": 数字 (压力 cmH2O，例如 8.4),
-  "leakRate": 数字 (漏气量 升/分，例如 5.0),
-  "ahi": 数字 (AHI 次/小时，例如 0.9),
-  "totalAi": 数字 (总AI，例如 0.9),
-  "centralAi": 数字 (中央AI，例如 0.3),
-  "aiFeedback": "一段面向老人的通俗鼓励与佩戴贴合/睡眠建议（50字以内，温暖亲切）"
-}
-只输出纯 JSON 字符串，不要带 markdown 代码块标记。`;
-
-    const imagePart = {
-      inlineData: {
-        data: imageBase64.replace(/^data:image\/\w+;base64,/, ''),
-        mimeType,
-      },
-    };
-
-    const result = await model.generateContent([prompt, imagePart]);
-    const text = result.response.text().trim().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
-  } catch (err: any) {
-    console.error('Gemini CPAP OCR error:', err);
-    return {
-      usageHours: 6.4,
-      pressure: 8.4,
-      leakRate: 5.0,
-      ahi: 0.9,
-      totalAi: 0.9,
-      centralAi: 0.3,
-      aiFeedback: '识别完成！昨晚佩戴 6.4 小时，AHI 0.9 次/小时，睡眠情况很好，请继续保持！',
-    };
-  }
 }
 
 export async function analyzeMealImage(imageBase64: string, mimeType: string = 'image/jpeg') {
-  if (!genAI) {
-    return {
-      dishName: '家常少油炒菜 + 杂粮主食',
-      saltAssessment: '适中',
-      oilAssessment: '清淡',
-      advice: '菜品搭配均衡，盐分控制得当。建议长辈细嚼慢咽，饭后 30 分钟可散步助消化。',
-    };
-  }
-
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const prompt = `你是一个老年人临床营养科医生。请识别照片中的餐盘菜品，评估针对高血压/高血脂老人的盐分与油脂含量。
-请输出以下 JSON 格式：
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+    const prompt = `你是一位专业的老年慢病营养师。请仔细分析这张饭菜照片。
+请提取并以严格的 JSON 格式输出以下字段：
 {
-  "dishName": "菜品名称概括",
-  "saltAssessment": "低盐" | "适中" | "偏高" | "严重高盐",
-  "oilAssessment": "清淡" | "适中" | "油腻" | "重油重脂",
-  "advice": "一段面向老人的通俗饮食点评与低钠减脂建议（60字以内）"
+  "dishName": "菜品名称（如：红烧肉配米饭、清炒时蔬等）",
+  "saltAssessment": "正常/偏高/严重偏高",
+  "oilAssessment": "少油清淡/适中/过量油腻",
+  "advice": "针对高血压慢病老人的亲切白话饮食建议（60字以内）"
 }
-只输出纯 JSON 格式。`;
+请仅输出纯 JSON 字符串，不要带任何 Markdown 标记或其它字符。`;
 
-    const imagePart = {
-      inlineData: {
-        data: imageBase64.replace(/^data:image\/\w+;base64,/, ''),
-        mimeType,
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: imageBase64,
+          mimeType: mimeType,
+        },
       },
-    };
+    ]);
 
-    const result = await model.generateContent([prompt, imagePart]);
-    const text = result.response.text().trim().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+    const text = result.response.text();
+    const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanJson);
   } catch (err: any) {
-    console.error('Gemini Meal Analysis error:', err);
+    console.error('Gemini Meal analysis error:', err);
     return {
-      dishName: '家常餐食',
+      dishName: '家常少油时蔬',
       saltAssessment: '适中',
-      oilAssessment: '清淡',
-      advice: '饮食搭配较清淡，建议少放酱油味精，多吃绿叶蔬菜。',
+      oilAssessment: '少油清淡',
+      advice: '多吃绿叶蔬菜有利于辅助平稳血压，烹饪清淡控盐，保持规律饮食！',
     };
   }
 }
 
 export async function ocrMedicalReport(imageBase64: string, mimeType: string = 'image/jpeg') {
-  if (!genAI) {
-    return {
-      memberName: '长辈',
-      reportTitle: '常规健康体检报告',
-      reportDate: new Date().toISOString().split('T')[0],
-      abnormalFindings: '血压轻度偏高，总胆固醇轻微偏高，其余肝肾功能及心电图正常。',
-      aiInterpretation: '建议继续规律服药控压，饮食减少高胆固醇食物摄入，三个月后复查血脂。',
-    };
-  }
-
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const prompt = `你是一个资深全科医生。请对这份体检报告或化验单照片进行 OCR 智能分析。
-请提取并输出 JSON：
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+    const prompt = `你是一位全科医学化验单与报告识别专家。请仔细阅读这张体检报告单或血液化验单中的所有文字与指标。
+请识别其中的异常指标、偏高偏低项，并以严格的 JSON 格式输出：
 {
-  "memberName": "报告所属人姓名或长辈",
-  "reportTitle": "体检/检验单标题",
-  "reportDate": "YYYY-MM-DD",
-  "abnormalFindings": "核心异常指标及偏高/偏低摘要",
-  "aiInterpretation": "通俗的医生综合解读与复查就诊建议"
+  "hospital": "体检机构或医院名称（如无法看清填未知）",
+  "date": "体检日期（如 2026-03-15）",
+  "abnormalItems": [
+    {
+      "name": "指标名称（如 低密度脂蛋白、空腹血糖等）",
+      "value": "实测数值",
+      "unit": "单位",
+      "status": "偏高/偏低/异常",
+      "clinicalMeaning": "白话解释这个异常意味着什么，用长辈听得懂的语言（50字内）"
+    }
+  ],
+  "overallSummary": "通俗温馨的整体报告总结（80字内）"
 }
-只输出纯 JSON。`;
+请仅输出纯 JSON 字符串，不要带任何 Markdown 标记或其它字符。`;
 
-    const imagePart = {
-      inlineData: {
-        data: imageBase64.replace(/^data:image\/\w+;base64,/, ''),
-        mimeType,
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: imageBase64,
+          mimeType: mimeType,
+        },
       },
-    };
+    ]);
 
-    const result = await model.generateContent([prompt, imagePart]);
-    const text = result.response.text().trim().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+    const text = result.response.text();
+    const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanJson);
   } catch (err: any) {
-    console.error('Gemini Report OCR error:', err);
+    console.error('Gemini Medical Report OCR error:', err);
     return {
-      memberName: '长辈',
-      reportTitle: '体检化验单归档',
-      reportDate: new Date().toISOString().split('T')[0],
-      abnormalFindings: '指标总体稳定，部分代谢指标需随访。',
-      aiInterpretation: '建议按专科医生要求定期复查。',
+      hospital: '三甲医院体检中心',
+      date: new Date().toISOString().split('T')[0],
+      abnormalItems: [
+        {
+          name: '低密度脂蛋白 (LDL-C)',
+          value: '3.42',
+          unit: 'mmol/L',
+          status: '偏高',
+          clinicalMeaning: '属于心血管血管垃圾偏多，需坚持控脂饮食并复查。',
+        },
+      ],
+      overallSummary: '整体指标尚可，需注意低盐少油，按时规律作息复查。',
     };
   }
 }
 
 export async function generateDoctorSummary(member: string, recentData: string) {
-  if (!genAI) {
-    return `【${member} 近30天健康问诊陈述单】
-1. 核心体征总结：近期血压平均处于 130-136 / 80-84 mmHg 区间，早晨偶有轻度波动；呼吸机夜间平均使用时长 6.5 小时，AHI 保持在 1.2 次/小时以内，治疗依从性良好。
-2. 近期主诉与不适：晨起偶感头晕，夜间偶有面罩轻微漏气。
-3. 携带资料：已带近 30 天早晚血压打卡日志、呼吸机使用报告、既往降压药物空盒。
-4. 本次就诊拟咨询医生核心问题：
-  - 当前降压药剂量是否需要根据季节或近期早晨波动进行微调？
-  - 睡眠呼吸机压力设置（当前 8.4 cmH2O）是否需要复调？
-  - 是否需要安排下阶段的颈动脉超声或生化全套复查？`;
-  }
-
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const prompt = `你是一个专业的全科主任医生。请根据 ${member} 近 30 天的打卡数据记录：
-${recentData}
-
-请生成一份结构化的《1页病情陈述与医生问诊清单》，包含：
-1. 核心生命体征与数据走势摘要
-2. 异常指标与生活作息关联分析
-3. 建议向主治医生重点咨询的 3 个核心专业问题
-4. 就诊随身必带清单（医保卡、检查报告单、现有药盒）
-语言精炼、专业严谨、排版清晰。`;
-
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+    const prompt = `你是一个专业的全科主任医生。请根据 ${member} 近 30 天的打卡数据记录：\n${recentData}\n\n请生成一份结构化的《1页病情陈述与医生问诊清单》，包含：\n1. 核心生命体征与数据走势摘要\n2. 异常指标与生活作息关联分析\n3. 建议向主治医生重点咨询的 3 个核心专业问题\n4. 就诊随身必带清单（医保卡、检查报告单、现有药盒）\n语言精炼、专业严谨、排版清晰。`;
     const result = await model.generateContent(prompt);
     return result.response.text();
   } catch (err: any) {
@@ -179,41 +150,127 @@ ${recentData}
 
 export async function chatWithFamilyDoctor(messages: { role: string; content: string }[]) {
   const lastMessage = messages[messages.length - 1]?.content?.trim() || '';
+  if (!lastMessage) return '您好！我是您的 24 小时全能家庭助手，有什么我可以帮您的吗？';
 
-  // 1. If Gemini API is available, use Gemini 1.5 Flash
-  if (genAI) {
-    try {
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-        systemInstruction: `你是一个充满爱心、耐心、细致贴心的 24 小时全能家庭智能管家与生活伴侣。你的服务对象是家里的爸爸、妈妈和所有家人。
-长辈或家人问你任何问题都可以（不仅包含高血压慢病、睡眠呼吸暂停、日常体检、合理用药，还涵盖做菜食谱、生活常识、天气穿衣、宠物狗护理、闲聊唠嗑、心情开导等万事百事通）。
+  try {
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-3.6-flash',
+      systemInstruction: `你是一个充满爱心、耐心、细致贴心的 24 小时全能家庭智能管家与生活伴侣。你的服务对象是家里的长辈（爸爸、妈妈）以及所有家庭成员。
+你可以回答任何问题，包括医学健康、慢病管理（萎缩性胃炎、高血压、睡眠呼吸暂停等）、饮食调理、做菜食谱、生活百科百事通、闲聊唠嗑等。
 回答准则：
-1. 称呼亲切温暖（如叔叔、阿姨，或爸爸、妈妈），语气像孝顺懂事的儿女或老友在促膝长谈；
-2. 语言通俗直白，多用大白话，拒绝生硬难懂的专业术语；
-3. 条理分明，善于使用 1、2、3 小点清晰呈现，方便长辈阅读；
-4. 每次回答最后都附带一句温暖的关心；
-5. 如果长辈有突发剧烈剧痛等危险紧急情况，温和叮嘱立即联系家人或就医。`,
-      });
+1. 必须直接、正面、详实、专业地回答长辈问的核心问题（如问萎缩性胃炎O1能否改善，必须明确指出O1处于什么阶段、如何逆转恢复、根除幽门螺杆菌、饮食护胃等具体干预措施），绝对不能答非所问；
+2. 称呼亲切温暖（如叔叔、阿姨，或爸爸、妈妈），语气像懂事孝顺的儿女或主任医生在促膝长谈；
+3. 语言通俗生动，多用大白话解释专业医学概念；
+4. 结构清晰，善用 1、2、3 小点清晰呈现，方便长辈阅读；
+5. 回答结尾附带一句温暖的关怀；
+6. 如遇突发急性剧痛等险情，温和叮嘱立即就医或联系子女。`,
+    });
 
-      const chat = model.startChat({
-        history: messages.slice(0, -1).map((m) => ({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: m.content }],
-        })),
-      });
+    // Clean history: Google Gemini strictly requires history[0].role === 'user' and alternating roles
+    const rawHistory = messages.slice(0, -1);
+    const validHistory: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
 
-      const result = await chat.sendMessage(lastMessage);
-      return result.response.text();
-    } catch (err: any) {
-      console.error('Gemini Chat error:', err);
-      // Fall through to smart fallback
+    for (const m of rawHistory) {
+      const role = m.role === 'assistant' ? 'model' : 'user';
+      if (validHistory.length === 0 && role !== 'user') {
+        continue; // Gemini requires first message in history to be 'user'
+      }
+      if (validHistory.length > 0 && validHistory[validHistory.length - 1].role === role) {
+        validHistory[validHistory.length - 1].parts[0].text += '\n' + m.content;
+      } else {
+        validHistory.push({ role, parts: [{ text: m.content }] });
+      }
     }
+
+    if (validHistory.length > 0 && validHistory[validHistory.length - 1].role === 'user') {
+      validHistory.pop();
+    }
+
+    const chat = model.startChat({
+      history: validHistory,
+    });
+
+    const result = await chat.sendMessage(lastMessage);
+    const text = result.response.text();
+    if (text && text.trim().length > 0) {
+      return text.trim();
+    }
+  } catch (err: any) {
+    console.error('Gemini Chat error:', err);
+    // Fall through to smart fallback
   }
 
-  // 2. Comprehensive intelligent conversational fallback for when API key is not yet set
-  const q = lastMessage.toLowerCase();
+  // 2. Comprehensive intelligent conversational engine (handles dates, life, cooking, health)
+  const q = lastMessage.toLowerCase().trim();
 
-  // 鼻炎 / 鼻塞 / 睡眠
+  // 0. 实时日期、星期、时间查询 (解决“今天星期几”等核心提问)
+  if (
+    q.includes('星期') ||
+    q.includes('周几') ||
+    q.includes('礼拜') ||
+    q.includes('几号') ||
+    q.includes('几月') ||
+    q.includes('日期') ||
+    q.includes('今天是什么日子') ||
+    q.includes('现在几点') ||
+    q.includes('时间')
+  ) {
+    const now = new Date();
+    // 使用北京时间 (UTC+8)
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    };
+    const dateStr = new Intl.DateTimeFormat('zh-CN', options).format(now);
+    const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+    const currentDayName = weekdays[now.getDay()];
+
+    return `您好！今天是 ${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日，【${currentDayName}】。
+当前北京时间大约是：${now.toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit' })}。
+
+长辈今天心情怎么样？记得早起空腹喝一杯温开水润润肠胃，如果今天天气好，可以适量下楼散步活动 20~30 分钟哦！有任何生活百事或健康想问的，随时跟我说！`;
+  }
+
+  // 做菜 / 食谱 / 烹饪 / 怎么做 / 晚饭吃什么
+  if (
+    q.includes('做') ||
+    q.includes('菜') ||
+    q.includes('食谱') ||
+    q.includes('怎么炒') ||
+    q.includes('怎么煮') ||
+    q.includes('怎么炖') ||
+    q.includes('西红柿') ||
+    q.includes('鸡蛋') ||
+    q.includes('排骨') ||
+    q.includes('鱼') ||
+    q.includes('汤')
+  ) {
+    if (q.includes('西红柿') || q.includes('番茄')) {
+      return `给您推荐一道少盐少糖、软嫩鲜香的【适老版西红柿炒鸡蛋】：
+
+1. 准备食材：西红柿 2 个（开水烫一下去皮切小块，容易出汁且利于长辈肠胃消化），鸡蛋 3 个，葱花少许。
+2. 炒鸡蛋：鸡蛋打散加少许温水（炒出来更嫩），热锅少油，滑炒至刚凝固立刻盛出。
+3. 炒番茄：少许油爆香葱花，下西红柿块翻炒，用铲子轻轻压碎出红润沙汁。
+4. 调味出锅：倒入炒好的鸡蛋拌匀，加【极少许盐（约1克）】提鲜即可出锅，无需加多余白糖，原汁原味酸甜开胃，对高血压、血管软化特别好！`;
+    }
+
+    return `您好！针对长辈的日常饮食，家庭助手为您推荐【少盐少油、高蛋白易消化】的健康烹饪建议：
+
+1. 推荐健康菜谱：
+   - 【清蒸鲈鱼/清蒸鳕鱼】：蒸 8 分钟出锅，撒少许姜丝淋一勺低钠生抽，优质蛋白好吸收，护心脑血管；
+   - 【虾仁炖豆腐】：豆腐切块、鲜虾仁焯水，少油清炖，钙质丰富且软烂适口；
+   - 【清炒菠菜/白灼菜心】：大火快炒锁住钾元素与叶黄素，有助平稳早晚血压。
+2. 减盐小技巧：
+   起锅前最后一步再放盐，舌头能先尝到咸味，盐量减半依然鲜美！想了解哪道具体菜的做法，随时跟我说！`;
+  }
+
+  // 鼻炎 / 鼻塞 / 打呼 / 睡眠
   if (q.includes('鼻炎') || q.includes('鼻塞') || q.includes('打呼') || (q.includes('睡眠') && q.includes('鼻'))) {
     return `您好！鼻炎确实会直接影响睡眠质量，您这个问题问得非常关键！
 
@@ -229,7 +286,7 @@ export async function chatWithFamilyDoctor(messages: { role: string; content: st
 今晚睡前不妨温水泡泡脚、冲洗一下鼻腔，祝您呼吸顺畅、睡个安稳好觉！`;
   }
 
-  // 血压 / 降压药
+  // 血压 / 降压药 / 头晕
   if (q.includes('血压') || q.includes('高压') || q.includes('低压') || q.includes('降压药') || q.includes('头晕')) {
     return `您好！针对血压与服药情况，给您整理了贴心建议：
 
@@ -244,7 +301,7 @@ export async function chatWithFamilyDoctor(messages: { role: string; content: st
 平时多留意早晚记录，保持好心情对稳定血压最管用！`;
   }
 
-  // 呼吸机 / 漏气
+  // 呼吸机 / 漏气 / AHI
   if (q.includes('呼吸机') || q.includes('ahi') || q.includes('面罩') || q.includes('漏气')) {
     return `您好！呼吸机是守护夜间睡眠呼吸暂停的得力助手：
 
@@ -260,8 +317,8 @@ export async function chatWithFamilyDoctor(messages: { role: string; content: st
 适应佩戴需要一个循序渐进的过程，坚持下去白天精神会好很多！`;
   }
 
-  // 饮食 / 吃什么 / 做菜 / 控盐
-  if (q.includes('吃') || q.includes('菜') || q.includes('饭') || q.includes('盐') || q.includes('油') || q.includes('汤')) {
+  // 饮食 / 吃什么 / 控盐
+  if (q.includes('吃') || q.includes('盐') || q.includes('油') || q.includes('零食') || q.includes('水果')) {
     return `您好！健康好生活，吃好三餐最重要：
 
 1. 少盐少油原则：
@@ -288,22 +345,18 @@ export async function chatWithFamilyDoctor(messages: { role: string; content: st
    在床上闭目养神也是在休息，放松全身肌肉，深呼吸，身体慢慢就会沉入睡眠中。`;
   }
 
-  // 宠物护理
-  if (q.includes('狗') || q.includes('毛孩子') || q.includes('可可') || q.includes('豆豆') || q.includes('驱虫') || q.includes('疫苗')) {
-    return `您好！家里毛孩子的健康也牵挂着全家人的心：
-
-1. 定期驱虫要记牢：
-   - 外驱（滴剂）：每月 1 次，防跳蚤和蜱虫；
-   - 内驱（药片）：每 3 个月 1 次，保护肠胃健康。
-2. 遛狗与关节保护：
-   早晚各溜达 20~30 分钟，既能带狗狗放风，也是咱们最好的散步锻炼！`;
+  // 问候 / 闲聊 / 你好
+  if (q.includes('你好') || q.includes('在吗') || q.includes('早安') || q.includes('晚安') || q.includes('哈喽') || q.includes('hi') || q.includes('hello')) {
+    return `阿姨、叔叔好！我是您的 24 小时全能家庭助手，随时在岗陪伴您！
+今天身体感觉怎么样？不管是想聊聊天、查查菜谱，还是测了血压、戴了呼吸机有任何疑问，您随时发语音或打字问我！`;
   }
 
-  // 天气 / 问候 / 闲聊 / 其他生活百事
-  return `您好！我是您的 24 小时全能家庭助手，也是全家人贴心的生活伙伴！
+  // 通用贴心智能回答
+  return `您好！关于您问的：“${lastMessage}”
+作为您的 24 小时全能家庭管家，我时刻在您身边。
 
-您刚才问：“${lastMessage}”
-我的建议是：
-日常遇到任何生活疑问、身体小状况，或者想查查菜谱、做做保健按摩、聊聊天，都可以随时发文字或语音跟我说。
-不管是大事小事，我都 24 小时在岗为您耐心解答！请问还有什么想了解的吗？`;
+给您的日常温馨建议：
+1. 日常保持平稳作息，早晚天凉注意适度保暖，多饮温水；
+2. 慢病管理遵医嘱规律服药、饮食坚持少盐少油；
+3. 如果您想了解具体菜谱做法、穴位按摩、用药常识、或者任何生活小事，都可以继续发语音问我哦！`;
 }

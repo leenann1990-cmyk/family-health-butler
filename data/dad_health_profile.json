@@ -1,0 +1,486 @@
+{
+  "metadata": {
+    "record_name": "李永群",
+    "role": "用户父亲",
+    "generated_for": "Quentin OS 健康模块导入",
+    "generated_at": "2026-08-09",
+    "scope": "基于当前对话、已上传健康档案与附件整理；不补造缺失数据",
+    "evidence_policy": {
+      "user_provided": "用户/家属明确口述或在聊天中提供",
+      "report_derived": "来自医院检查报告、处方、影像或化验",
+      "ai_inference": "AI曾做出的解释、建议或推测；不视为诊断或医嘱"
+    }
+  },
+  "basic_info": {
+    "name": "李永群",
+    "sex": "男",
+    "age": 69,
+    "birth_date": null,
+    "relation_to_user": "父亲",
+    "known_history": [
+      {
+        "item": "高血压",
+        "duration": "10余年",
+        "source_type": "用户明确提供的信息"
+      },
+      {
+        "item": "胆囊切除史",
+        "duration": "多年前",
+        "source_type": "用户明确提供的信息"
+      },
+      {
+        "item": "2026年5月胃ESD",
+        "hospital": "上海仁济医院",
+        "source_type": "用户明确提供的信息/档案汇总"
+      }
+    ],
+    "allergy_history": {
+      "value": "旧档案记录“无”",
+      "status": "建议仍以本人及正式病历复核",
+      "source_type": "用户明确提供的信息"
+    }
+  },
+  "conditions_and_symptoms": [
+    {
+      "system": "消化",
+      "condition": "早期胃癌，2026年5月行胃ESD",
+      "status": "家属转述主治医师已明确告知治愈、无需追加处理；继续常规术后随访",
+      "source_type": "用户明确提供的信息"
+    },
+    {
+      "system": "消化",
+      "condition": "慢性萎缩性胃炎，伴重度萎缩/肠化的病理记录",
+      "status": "长期随访",
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "system": "血液",
+      "condition": "轻度贫血",
+      "status": "恢复中，病因未最终确定",
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "system": "心血管",
+      "condition": "高血压",
+      "status": "长期管理",
+      "source_type": "用户明确提供的信息"
+    },
+    {
+      "system": "心血管",
+      "condition": "影像摘要所见冠脉钙化/主动脉或腹主动脉硬化",
+      "status": "需结合原始影像和心内科评估",
+      "source_type": "检查报告中的信息/历史摘要"
+    },
+    {
+      "system": "神经骨骼",
+      "condition": "C3/4-C6/7多节段颈椎间盘突出、椎管狭窄，C5/6终板炎可能",
+      "status": "随访",
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "system": "神经",
+      "condition": "双侧正中神经腕部损害，符合腕管综合征方向",
+      "status": "随访",
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "system": "肾脏泌尿",
+      "condition": "既往肾功能异常，后续明显恢复",
+      "status": "2026-07-13 Cr、尿蛋白、ACR在报告/记录范围内；家属记录肾内科医生称“没有肾病了”",
+      "source_type": "检查报告中的信息/用户明确提供的信息"
+    },
+    {
+      "system": "肾脏泌尿",
+      "condition": "尿隐血1+、双肾小结节",
+      "status": "需复查尿检和超声",
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "system": "肺部",
+      "condition": "双肺多发微小结节、右下肺纤维化灶",
+      "status": "缺原始CT尺寸/密度/复查建议",
+      "source_type": "历史检查摘要"
+    },
+    {
+      "system": "肝胆",
+      "condition": "胆囊切除史；历史影像有左肝胆管扩张、肝左叶体积缩小/肝强化不均；尿胆红素1+",
+      "status": "结合肝功能和影像复核",
+      "source_type": "用户明确提供的信息/检查报告中的信息"
+    },
+    {
+      "system": "代谢",
+      "condition": "HbA1c 5.7%边界风险",
+      "status": "无已知糖尿病诊断证据",
+      "source_type": "检查报告中的信息"
+    }
+  ],
+  "reports": [
+    {
+      "date": "2025-11-17",
+      "type": "胸部CT/颈椎MRI（历史摘要）",
+      "facility": "贵州医科大学附属医院",
+      "findings": [
+        "颈椎C3/4、C4/5、C5/6椎间盘膨出（历史摘要）",
+        "主动脉及冠脉钙化",
+        "双肺多发微小结节",
+        "右肺下叶纤维化灶",
+        "右侧第3肋陈旧骨折"
+      ],
+      "limitations": "当前档案缺完整原报告和肺结节尺寸/密度",
+      "source_type": "检查报告中的信息/历史摘要"
+    },
+    {
+      "date": "2026-04-22",
+      "type": "胃体活检病理",
+      "facility": "上海仁济医院东院",
+      "findings": [
+        "慢性炎症+",
+        "萎缩+++",
+        "肠化+++",
+        "固有膜充血",
+        "病理诊断：慢性萎缩性胃炎"
+      ],
+      "notes": "这份病理是4月22日胃体活检，不是5月ESD切除标本病理",
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "date": "2026-05-11",
+      "type": "术前血液检查",
+      "facility": "上海仁济医院",
+      "findings": {
+        "HGB_g_L": 124,
+        "MCV_fL": 106,
+        "Cr_umol_L": 124,
+        "B12": 220,
+        "folate": 7.8,
+        "CA72_4_U_mL": 31.4,
+        "H_pylori_AU_mL": 2.1
+      },
+      "notes": "HGB偏低、MCV升高、肌酐升高；B12偏低边缘；CA72-4升高；幽门螺杆菌记录为阴性",
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "date": "2026-05",
+      "type": "胃ESD",
+      "facility": "上海仁济医院",
+      "findings": [
+        "因早期胃癌行ESD"
+      ],
+      "doctor_comment": "家属于2026-07-15补充：主治医师明确告知已经治愈，无需追加处理",
+      "source_type": "用户明确提供的信息/档案汇总"
+    },
+    {
+      "date": "2026-06-17",
+      "type": "血常规",
+      "facility": "上海仁济医院东院",
+      "findings": {
+        "WBC_1e9_L": 6.35,
+        "RBC_1e12_L": 3.75,
+        "HGB_g_L": 122,
+        "HCT_pct": 37.1,
+        "MCV_fL": 98.9,
+        "PLT_1e9_L": 129
+      },
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "date": "2026-06-17",
+      "type": "尿常规/肾功能相关",
+      "facility": "上海仁济医院东院",
+      "findings": {
+        "urine_protein": "±",
+        "urine_occult_blood": "1+",
+        "urine_RBC_per_uL": 10.0,
+        "Cr_umol_L": 100,
+        "eGFR_approx": 66,
+        "HbA1c_pct": 5.7,
+        "IgG4": 1.78
+      },
+      "source_type": "检查报告中的信息/旧导出摘要"
+    },
+    {
+      "date": "2026-06-18",
+      "type": "肌电图/神经传导",
+      "facility": "上海仁济医院",
+      "findings": [
+        "右侧正中神经远端潜伏期延长",
+        "双侧正中神经感觉传导速度减慢",
+        "双侧正中神经腕部卡压可能",
+        "所检肌肉未见明显神经源性或肌源性损害"
+      ],
+      "notes": "正式严重程度与治疗方案需结合原报告和临床症状；旧AI对个别数值曾存在过度解读",
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "date": "2026-06-22",
+      "type": "贫血/泌尿复查",
+      "facility": "上海仁济医院",
+      "findings": {
+        "HGB_g_L": 120,
+        "RBC_1e12_L": 3.75,
+        "MCV_fL": 98.7,
+        "B12": 311,
+        "ferritin": 345,
+        "CA72_4_U_mL": 9.02,
+        "PSA": 0.601,
+        "residual_urine_mL": 5,
+        "right_kidney_crystal_mm": 2
+      },
+      "notes": "铁记录正常、TIBC低、EPO正常；丙肝抗体阴性",
+      "source_type": "检查报告中的信息/旧导出摘要"
+    },
+    {
+      "date": "2026-06-25_to_2026-06-27",
+      "type": "颈椎MRI",
+      "facility": "上海仁济医院",
+      "findings": [
+        "C3/4、C4/5、C5/6、C6/7椎间盘向后方局限性突出",
+        "相应硬脊膜囊受压、椎管狭窄、椎间盘变性",
+        "C5/6终板炎可能",
+        "颈髓未见明显异常信号",
+        "椎旁软组织及双侧椎动脉未见明显异常"
+      ],
+      "source_type": "检查报告中的信息"
+    },
+    {
+      "date": "2026-07-13",
+      "type": "贵医复查：血常规、肾功能、血脂、尿检、ACR、泌尿系超声",
+      "facility": "贵州医科大学附属医院",
+      "findings": {
+        "HGB_g_L": 122,
+        "RBC_1e12_L": 3.91,
+        "HCT_pct": 37.7,
+        "MCV_fL": 96.4,
+        "PLT_1e9_L": 142,
+        "Cr_umol_L": 106.97,
+        "fasting_glucose_mmol_L": 5.78,
+        "TC_mmol_L": 4.77,
+        "TG_mmol_L": 1.3,
+        "HDL_C_mmol_L": 1.28,
+        "LDL_C_mmol_L": 3.21,
+        "urine_protein": "阴性",
+        "urine_occult_blood": "1+",
+        "urine_bilirubin": "1+",
+        "urine_RBC_per_uL": 4.6,
+        "ACR_mg_g": 28.52,
+        "bilateral_renal_nodules": true
+      },
+      "doctor_comment": "家属记录肾内科医生称“没有肾病了”",
+      "source_type": "检查报告中的信息/用户明确提供的信息"
+    },
+    {
+      "date": "2026-07-04",
+      "type": "家庭血压",
+      "findings": {
+        "systolic_mmHg": 111,
+        "diastolic_mmHg": 72,
+        "pulse_bpm": 84
+      },
+      "source_type": "用户上传图片"
+    },
+    {
+      "date": "2026-07-17",
+      "type": "家庭血压",
+      "findings": {
+        "systolic_mmHg": 128,
+        "diastolic_mmHg": 82,
+        "pulse_bpm": 66
+      },
+      "source_type": "用户上传图片"
+    }
+  ],
+  "medications": [
+    {
+      "drug": "非洛地平",
+      "dose": "5 mg",
+      "frequency": "每日1次",
+      "start_time": "长期",
+      "indication": "高血压",
+      "source_type": "用户明确提供的信息/档案"
+    },
+    {
+      "drug": "甲钴胺片（奇信）",
+      "dose": "0.5 mg",
+      "frequency": "每日1次",
+      "start_time": "2026-06-27",
+      "quantity": "2盒",
+      "indication": "肢体麻木/神经内科",
+      "source_type": "检查/处方记录"
+    },
+    {
+      "drug": "替普瑞酮胶囊（施维舒）",
+      "dose": null,
+      "frequency": null,
+      "start_time": null,
+      "indication": "胃黏膜保护",
+      "source_type": "用户明确提供的信息/档案",
+      "missing": [
+        "准确剂量",
+        "频次",
+        "疗程"
+      ]
+    },
+    {
+      "drug": "胃复春胶囊",
+      "dose": null,
+      "frequency": null,
+      "start_time": null,
+      "indication": "消化科用药记录",
+      "source_type": "用户明确提供的信息/档案",
+      "missing": [
+        "准确剂量",
+        "频次",
+        "疗程"
+      ]
+    }
+  ],
+  "important_trends": {
+    "HGB_g_L": [
+      {
+        "date": "2026-04-22",
+        "value": 133
+      },
+      {
+        "date": "2026-05-11",
+        "value": 124
+      },
+      {
+        "date": "2026-06-09",
+        "value": 97,
+        "note": "采样背景/对应事件未明确"
+      },
+      {
+        "date": "2026-06-17",
+        "value": 122
+      },
+      {
+        "date": "2026-06-22",
+        "value": 120
+      },
+      {
+        "date": "2026-07-13",
+        "value": 122
+      }
+    ],
+    "MCV_fL": [
+      {
+        "date": "2026-04-22",
+        "value": 99.8
+      },
+      {
+        "date": "2026-05-11",
+        "value": 106
+      },
+      {
+        "date": "2026-06-22",
+        "value": 98.7
+      },
+      {
+        "date": "2026-07-13",
+        "value": 96.4
+      }
+    ],
+    "creatinine_umol_L": [
+      {
+        "date": "2026-05-11",
+        "value": 124
+      },
+      {
+        "date": "2026-06-17",
+        "value": 100
+      },
+      {
+        "date": "2026-07-13",
+        "value": 106.97
+      }
+    ],
+    "CA72_4_U_mL": [
+      {
+        "date": "2026-05-11",
+        "value": 31.4
+      },
+      {
+        "date": "2026-06-22",
+        "value": 9.02
+      },
+      {
+        "date": "2026-07-13",
+        "value": null,
+        "note": "当时待出；当前对话未见后续结果"
+      }
+    ],
+    "home_blood_pressure": [
+      {
+        "date": "2026-07-04",
+        "systolic": 111,
+        "diastolic": 72,
+        "pulse": 84
+      },
+      {
+        "date": "2026-07-17",
+        "systolic": 128,
+        "diastolic": 82,
+        "pulse": 66
+      }
+    ]
+  },
+  "doctor_advice_and_tasks": {
+    "doctor_comments": [
+      {
+        "date": "2026-07-15",
+        "content": "胃ESD后已经治愈、无需追加处理；按主治医师安排常规术后随访",
+        "source_type": "用户明确提供的信息（家属转述医生意见）"
+      },
+      {
+        "date": "2026-07-13",
+        "content": "肾内科医生称“没有肾病了”",
+        "source_type": "用户明确提供的信息（家属转述医生意见）"
+      },
+      {
+        "date": "2026-06-24",
+        "content": "肾内科家属记录：无大碍，会慢慢恢复",
+        "source_type": "用户明确提供的信息（家属记录医生意见）"
+      }
+    ],
+    "pending": [
+      "确认2026-07-13 CA72-4结果",
+      "确认IgG4复查结果",
+      "确认甲功五项结果",
+      "确认同型半胱氨酸结果",
+      "确认大便隐血结果",
+      "补齐替普瑞酮、胃复春准确剂量、频次和疗程",
+      "补2025-11-17胸部CT原报告及肺结节尺寸/密度/复查建议",
+      "补2026-07-13泌尿系超声原件，确认双肾小结节大小、位置和性质",
+      "按医生安排复查血常规，继续观察贫血趋势",
+      "按医生安排复查泌尿系超声（旧计划3-6个月）",
+      "按主治医师安排进行ESD术后常规复诊/胃镜"
+    ]
+  },
+  "ai_inferences_and_suggestions": [
+    {
+      "topic": "贫血",
+      "content": "AI曾分析可能与术期/疾病恢复、炎症相关或功能性铁受限、既往B12不足、隐匿失血等有关；均非最终诊断。",
+      "status": "AI推测"
+    },
+    {
+      "topic": "补铁",
+      "content": "因铁蛋白高、TIBC低，AI建议不要自行补铁，应先结合TSAT、炎症指标及医生判断。",
+      "status": "AI建议"
+    },
+    {
+      "topic": "腕管综合征",
+      "content": "AI曾建议夜间中立位腕托、避免长时间屈腕，并提醒不要仅凭旧数值自行决定封闭或手术。",
+      "status": "AI建议"
+    },
+    {
+      "topic": "颈椎",
+      "content": "AI建议避免高风险颈部暴力推拿/扳动，出现进行性无力、步态异常或大小便异常时尽快就医。",
+      "status": "AI建议"
+    },
+    {
+      "topic": "心血管",
+      "content": "AI建议携带家庭血压记录与影像原件，由心内科综合评估血压目标、LDL-C目标及是否需要降脂治疗。",
+      "status": "AI建议"
+    }
+  ]
+}

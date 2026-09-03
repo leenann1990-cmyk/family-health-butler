@@ -1,0 +1,23 @@
+date,category,event,details,source_type,verification_status
+2015-01-01,症状,头晕发作,"约2015年前后；具体日期与诊断不详",historical_summary,待原始记录核实
+2021-01-01,症状,记忆下降开始,"约5年前开始；近2年较明显",historical_summary,时间为约数
+2026-01-01,基本资料,年龄记录,"2026年对话中为63岁；出生日期未提供",historical_summary,待核实
+2026-06-01,影像,头颅MRI/MRA/DWI,"双侧皮层下白质高信号Fazekas 1级；左侧眼动脉根部小突起待鉴别；DWI未见急性脑梗；具体检查日未恢复",medical_report_transcription,待原件核实
+2026-06-01,睡眠检查,PSG,"AHI 70.7/h；最低SpO2 79%；ODI 43.7；SpO2<90%约39%；具体检查日未恢复",medical_report_transcription,待原件核实
+2026-07-29,复诊,上海仁济医院神经内科,"耿介立医生；诊断用语为遗忘、认知障碍；未写AD或CSVD",medical_report_transcription,对话转录
+2026-07-29,认知量表,量表结果,"MMSE 29/30；MoCA 17/30；HAMD 1",medical_report_transcription,对话转录
+2026-07-29,检查计划,新增检查,"建议头颅CTA、头颅SWI、复查EEG",doctor_statement,对话转录
+2026-07-29,用药,多奈哌齐,"5 mg每晚一次；心率<55次/分停用",doctor_statement,对话转录
+2026-07-29,生活方式,医生建议,"鼓励体育锻炼、社交、脑力锻炼",doctor_statement,对话转录
+2026-07-29,更正,教育年限,"病历2年为错误；用户确认中专毕业12年；旧档案15年不再采用",user_provided,已按最终陈述更正
+2026-07-29,诊断纠偏,脑小血管病,"医生明确表示未有人确诊；Fazekas 1级白质高信号不等于CSVD确诊",doctor_statement,已纠偏
+2026-08-01,用药,胞磷胆碱钠,"宝诺达；用户称为仁济医生所开；剂量频次未保留",user_provided,待处方核实
+2026-08-01,用药,奥拉西坦,"较早神经内科医生开具；剂量频次及当前状态未知",historical_summary,待核实
+2026-08-05,CPAP,每日记录,"使用7.5h；压力10.4；漏气12；AHI 2.1；AI/中央AI未显示",ai_transcription_of_user_image,原图缺失
+2026-08-06,CPAP,每日记录,"使用7.4h；压力8.8；漏气4；AHI 10.3；AI 9.9；中央AI 9.1",ai_transcription_of_user_image,原图缺失
+2026-08-07,CPAP,每日记录,"使用6.5h；压力9.5；漏气8；AHI 4.3；AI 4.1；中央AI 2.7",ai_transcription_of_user_image,原图缺失
+2026-08-10,CPAP,每日记录,"使用6.3h；压力7.7；漏气5；AHI 0.9；AI 0.7；中央AI 0.3",ai_transcription_of_user_image,原图缺失
+2026-08-11,CPAP,每日记录,"使用7.7h；压力8.2；漏气6；AHI 6.0；AI 5.8；中央AI 5.2",ai_transcription_of_user_image,原图缺失
+2026-08-12,CPAP,每日记录,"使用7.1h；压力10.9；漏气19；AHI 8.5；AI 8.5；中央AI 7.0",ai_transcription_of_user_image,原图缺失
+2026-08-13,CPAP,每日记录,"使用6.4h；压力9.5；漏气7；AHI 1.2；AI 1.2；中央AI 0.4",ai_transcription_of_user_image,原图缺失
+2026-08-16,档案,迁移包生成,"内容覆盖至2026-08-16；原始附件未随项目镜像提供",migration_metadata,已完成

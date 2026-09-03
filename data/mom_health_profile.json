@@ -1,0 +1,434 @@
+{
+  "schema_version": "1.0",
+  "record_title": "妈妈完整健康档案",
+  "cutoff_date": "2026-08-16",
+  "person": {
+    "name": "周芸",
+    "relationship_label": "妈妈",
+    "sex": "女",
+    "age_in_2026": 63,
+    "birth_date": null,
+    "education": {
+      "level": "中专毕业",
+      "years": 12,
+      "source_type": "user_provided",
+      "correction": "2026-07-29病历中的2年为录入错误；旧档案15年版本不再采用"
+    }
+  },
+  "provenance": {
+    "primary_source": "ChatGPT对话：👩🏻 妈妈健康管家",
+    "conversation_id": "6a3fefc8-3ccc-83eb-aaa8-3246a69bdf19",
+    "project_sources_directory": "empty_at_export",
+    "limitations": [
+      "原始图片和附件在当前项目中不可读取",
+      "图片内数据来自原对话中的AI转录，应以原始报告为准",
+      "缺失信息使用null，不作推断"
+    ],
+    "source_types": [
+      "user_provided",
+      "medical_report_transcription",
+      "doctor_statement",
+      "ai_inference",
+      "historical_summary",
+      "unknown"
+    ]
+  },
+  "conditions": [
+    {
+      "name": "遗忘/认知障碍",
+      "status": "documented",
+      "date": "2026-07-29",
+      "source_type": "medical_report_transcription",
+      "evidence": "仁济神经内科病历诊断用语"
+    },
+    {
+      "name": "重度阻塞性睡眠呼吸暂停",
+      "status": "documented",
+      "date": null,
+      "source_type": "medical_report_transcription",
+      "evidence": "PSG AHI 70.7/h，最低SpO2 79%"
+    },
+    {
+      "name": "脑白质高信号",
+      "status": "imaging_finding",
+      "date": null,
+      "source_type": "medical_report_transcription",
+      "evidence": "双侧皮层下白质高信号，Fazekas 1级"
+    },
+    {
+      "name": "脑小血管病",
+      "status": "not_diagnosed",
+      "date": "2026-07-29",
+      "source_type": "doctor_statement",
+      "evidence": "用户转述医生明确表示未有人确诊；诊断栏未记录CSVD"
+    },
+    {
+      "name": "阿尔茨海默病",
+      "status": "not_diagnosed",
+      "date": "2026-07-29",
+      "source_type": "medical_report_transcription",
+      "evidence": "仁济病历未记录AD；血液标志物不能单独排除AD"
+    },
+    {
+      "name": "中央型睡眠呼吸暂停",
+      "status": "not_diagnosed",
+      "date": null,
+      "source_type": "ai_inference",
+      "evidence": "家用CPAP中央AI波动，不能据此确诊"
+    }
+  ],
+  "symptoms": [
+    {
+      "name": "记忆下降",
+      "onset": "约2021年",
+      "course": "近2年较明显",
+      "source_type": "historical_summary"
+    },
+    {
+      "name": "注意力下降",
+      "onset": null,
+      "course": null,
+      "source_type": "user_provided"
+    },
+    {
+      "name": "长期打鼾与夜间憋气",
+      "onset": "数十年",
+      "course": null,
+      "source_type": "historical_summary"
+    },
+    {
+      "name": "头晕发作",
+      "onset": "约2015年",
+      "course": null,
+      "source_type": "historical_summary"
+    }
+  ],
+  "cognitive_assessments": [
+    {
+      "test": "MMSE",
+      "score": 29,
+      "maximum": 30,
+      "date": null,
+      "source_type": "medical_report_transcription"
+    },
+    {
+      "test": "MoCA",
+      "score": 17,
+      "maximum": 30,
+      "date": null,
+      "source_type": "medical_report_transcription",
+      "note": "解释时使用教育年限12年"
+    },
+    {
+      "test": "HAMD",
+      "score": 1,
+      "maximum": 52,
+      "date": null,
+      "source_type": "medical_report_transcription",
+      "note": "未提示明显抑郁"
+    },
+    {
+      "test": "ADL",
+      "score": null,
+      "result": "生活自理良好",
+      "date": null,
+      "source_type": "historical_summary"
+    }
+  ],
+  "investigations": [
+    {
+      "name": "头颅MRI",
+      "date": null,
+      "result": "双侧皮层下白质高信号，Fazekas 1级；旧摘要另称额顶叶皮层下及半卵圆中心多发白质变性/腔隙灶",
+      "source_type": "medical_report_transcription",
+      "verification": "original_needed"
+    },
+    {
+      "name": "DWI",
+      "date": null,
+      "result": "未见急性脑梗",
+      "source_type": "historical_summary",
+      "verification": "original_needed"
+    },
+    {
+      "name": "MRA/血管影像",
+      "date": null,
+      "result": "颅内动脉硬化；左侧眼动脉根部小突起，小动脉瘤或漏斗样扩张待鉴别",
+      "source_type": "medical_report_transcription",
+      "verification": "original_needed"
+    },
+    {
+      "name": "EEG",
+      "date": null,
+      "result": "两侧半球少量短段阵发性同步及不同步性高电位/异常活动",
+      "source_type": "medical_report_transcription",
+      "note": "不等于癫痫确诊"
+    },
+    {
+      "name": "PSG",
+      "date": null,
+      "result": {
+        "AHI_per_hour": 70.7,
+        "lowest_spo2_percent": 79,
+        "ODI_per_hour": 43.7,
+        "time_below_90_percent_approx": 39
+      },
+      "source_type": "medical_report_transcription"
+    },
+    {
+      "name": "APOE",
+      "date": null,
+      "result": "ε2/ε3",
+      "source_type": "medical_report_transcription"
+    },
+    {
+      "name": "p-tau181",
+      "date": null,
+      "result": "正常/未提示异常",
+      "source_type": "medical_report_transcription"
+    },
+    {
+      "name": "p-tau217",
+      "date": null,
+      "result": "正常/未提示异常",
+      "source_type": "medical_report_transcription"
+    },
+    {
+      "name": "Aβ42",
+      "date": null,
+      "result": "历史摘要称未提示异常",
+      "source_type": "historical_summary",
+      "verification": "original_needed"
+    },
+    {
+      "name": "HbA1c",
+      "date": null,
+      "result": 5.4,
+      "unit": "%",
+      "source_type": "historical_summary"
+    },
+    {
+      "name": "LDL-C",
+      "date": null,
+      "result": 2.84,
+      "unit": "mmol/L",
+      "source_type": "historical_summary"
+    }
+  ],
+  "doctor_visits": [
+    {
+      "date": "2026-07-29",
+      "facility": "上海仁济医院",
+      "department": "神经内科",
+      "doctor": "耿介立",
+      "diagnoses": [
+        "遗忘",
+        "认知障碍"
+      ],
+      "not_diagnosed": [
+        "阿尔茨海默病",
+        "脑小血管病",
+        "血管性痴呆"
+      ],
+      "recommendations": [
+        "完善头颅CTA",
+        "完善头颅SWI",
+        "复查EEG",
+        "多奈哌齐5 mg每晚一次，心率<55次/分停用",
+        "鼓励体育锻炼、社交、脑力锻炼"
+      ],
+      "source_type": "medical_report_transcription"
+    }
+  ],
+  "medications": [
+    {
+      "generic_name": "多奈哌齐",
+      "salt_form": "盐酸多奈哌齐",
+      "brand_names_discussed": [
+        "安理申",
+        "忆知",
+        "思博海"
+      ],
+      "dose_mg": 5,
+      "frequency": "每晚一次",
+      "start_date": null,
+      "status": "prescribed; current use unconfirmed",
+      "stop_rule": "心率<55次/分停用",
+      "source_type": "medical_report_transcription"
+    },
+    {
+      "generic_name": "胞磷胆碱钠",
+      "brand_names_discussed": [
+        "宝诺达"
+      ],
+      "dose_mg": null,
+      "frequency": null,
+      "start_date": null,
+      "status": "doctor-prescribed per user; current use unconfirmed",
+      "source_type": "user_provided"
+    },
+    {
+      "generic_name": "奥拉西坦",
+      "dose_mg": null,
+      "frequency": null,
+      "start_date": null,
+      "status": "historical use; current use unconfirmed",
+      "source_type": "historical_summary"
+    }
+  ],
+  "cpap": {
+    "device": {
+      "brand": "ResMed",
+      "mode": "AutoSet",
+      "model": null
+    },
+    "settings": {
+      "min_pressure_cmh2o": 4,
+      "max_pressure_cmh2o": 14,
+      "EPR": 2,
+      "source_type": "historical_summary"
+    },
+    "daily_records": [
+      {
+        "date": "2026-08-05",
+        "usage_hours": 7.5,
+        "pressure_cmh2o": 10.4,
+        "leak_lpm": 12,
+        "AHI": 2.1,
+        "AI": null,
+        "central_AI": null
+      },
+      {
+        "date": "2026-08-06",
+        "usage_hours": 7.4,
+        "pressure_cmh2o": 8.8,
+        "leak_lpm": 4,
+        "AHI": 10.3,
+        "AI": 9.9,
+        "central_AI": 9.1
+      },
+      {
+        "date": "2026-08-07",
+        "usage_hours": 6.5,
+        "pressure_cmh2o": 9.5,
+        "leak_lpm": 8,
+        "AHI": 4.3,
+        "AI": 4.1,
+        "central_AI": 2.7
+      },
+      {
+        "date": "2026-08-10",
+        "usage_hours": 6.3,
+        "pressure_cmh2o": 7.7,
+        "leak_lpm": 5,
+        "AHI": 0.9,
+        "AI": 0.7,
+        "central_AI": 0.3
+      },
+      {
+        "date": "2026-08-11",
+        "usage_hours": 7.7,
+        "pressure_cmh2o": 8.2,
+        "leak_lpm": 6,
+        "AHI": 6.0,
+        "AI": 5.8,
+        "central_AI": 5.2
+      },
+      {
+        "date": "2026-08-12",
+        "usage_hours": 7.1,
+        "pressure_cmh2o": 10.9,
+        "leak_lpm": 19,
+        "AHI": 8.5,
+        "AI": 8.5,
+        "central_AI": 7.0
+      },
+      {
+        "date": "2026-08-13",
+        "usage_hours": 6.4,
+        "pressure_cmh2o": 9.5,
+        "leak_lpm": 7,
+        "AHI": 1.2,
+        "AI": 1.2,
+        "central_AI": 0.4
+      },
+      {
+        "date": null,
+        "date_note": "约2026-08月初",
+        "usage_hours": 6.6,
+        "pressure_cmh2o": 9.4,
+        "leak_lpm": 16,
+        "AHI": 1.6,
+        "AI": 1.6,
+        "central_AI": 0.9
+      }
+    ],
+    "trend": "中央AI在低值与高值间明显夜间波动，未见连续持续升高的已证实记录",
+    "source_type": "ai_transcription_of_user_images",
+    "clinical_status": "central sleep apnea not diagnosed"
+  },
+  "tasks": [
+    {
+      "task": "找回并归档所有原始报告与图片",
+      "status": "pending"
+    },
+    {
+      "task": "完成或确认头颅CTA",
+      "status": "pending"
+    },
+    {
+      "task": "完成或确认头颅SWI",
+      "status": "pending"
+    },
+    {
+      "task": "复查EEG",
+      "status": "pending"
+    },
+    {
+      "task": "下次复诊更正教育年限为12年",
+      "status": "pending"
+    },
+    {
+      "task": "核对全部当前药物的剂量、频次、起止日期与不良反应",
+      "status": "pending"
+    },
+    {
+      "task": "持续记录CPAP并保留SD卡详细数据",
+      "status": "ongoing"
+    },
+    {
+      "task": "CPAP稳定2–3个月后与医生讨论复查认知量表",
+      "status": "pending"
+    },
+    {
+      "task": "请医生明确多奈哌齐试用目标及复评时间",
+      "status": "pending"
+    }
+  ],
+  "corrections": [
+    {
+      "topic": "教育年限",
+      "incorrect": [
+        2,
+        15
+      ],
+      "correct": 12,
+      "source_type": "user_provided"
+    },
+    {
+      "topic": "脑小血管病",
+      "incorrect": "已确诊",
+      "correct": "MRI有Fazekas 1级白质高信号，但尚未正式确诊CSVD"
+    },
+    {
+      "topic": "阿尔茨海默病",
+      "incorrect": "血液检查已完全排除",
+      "correct": "相关结果未支持典型AD/降低可能性，但不能单独完全排除"
+    },
+    {
+      "topic": "中央型睡眠呼吸暂停",
+      "incorrect": "CPAP中央AI高即确诊",
+      "correct": "家用设备汇总数据不足以确诊，需看趋势及必要时正式睡眠监测"
+    }
+  ]
+}
