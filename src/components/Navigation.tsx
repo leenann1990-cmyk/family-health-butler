@@ -38,8 +38,8 @@ export default function Navigation() {
                 : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200'
             }`}
           >
-            <span className="text-lg">👵</span>
-            <span className="font-bold">长辈极简模式</span>
+            <span className="text-lg">👩</span>
+            <span className="font-bold">爸妈专属模式</span>
           </Link>
 
           {/* Admin / Full Board Button */}

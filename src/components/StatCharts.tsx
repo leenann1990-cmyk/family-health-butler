@@ -51,7 +51,7 @@ export default function StatCharts({ bpData, cpapData }: Props) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
           <div>
             <h3 className="font-bold text-stone-900 text-lg flex items-center gap-2">
-              <span>👴 爸爸 · 近两周血压与心率波动走势</span>
+              <span>👨 爸爸 · 近两周血压与心率波动走势</span>
             </h3>
             <p className="text-xs text-stone-600">
               绿色虚线：正常高压上限 130 mmHg / 低压上限 80 mmHg
@@ -94,7 +94,7 @@ export default function StatCharts({ bpData, cpapData }: Props) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
           <div>
             <h3 className="font-bold text-stone-900 text-lg flex items-center gap-2">
-              <span>👵 妈妈 · 近两周呼吸机 AHI 暂停指数与使用时长</span>
+              <span>👩 妈妈 · 近两周呼吸机 AHI 暂停指数与使用时长</span>
             </h3>
             <p className="text-xs text-stone-600">
               黄色虚线：AHI 正常分界线 5.0 次/小时（低于5为正常/治疗理想）

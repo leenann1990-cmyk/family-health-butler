@@ -5,7 +5,7 @@
       "name": "妈妈",
       "relation": "母亲",
       "role": "elder",
-      "avatar": "👵",
+      "avatar": "👩",
       "isElderlyModeDefault": true,
       "notes": "重点关注：夜间睡眠呼吸机使用达标情况（AHI<5, 漏气<24L/min）"
     },
@@ -14,7 +14,7 @@
       "name": "爸爸",
       "relation": "父亲",
       "role": "elder",
-      "avatar": "👴",
+      "avatar": "👨",
       "isElderlyModeDefault": true,
       "notes": "重点关注：每日早晚血压监控（目标高压<130, 低压<80）"
     },

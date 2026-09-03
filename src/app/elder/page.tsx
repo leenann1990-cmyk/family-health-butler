@@ -25,7 +25,10 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Sparkle
+  Sparkle,
+  Mic,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { PARENT_HEALTH_PROFILES } from '@/lib/parent-health-profiles';
 import { PhysicalExamMetric } from '@/types/health';
@@ -68,17 +71,20 @@ export default function ElderPage() {
   // Category filter for physical exam
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
 
-  // AI Chat State
+  // AI Chat & Voice State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       id: 'init-1',
       role: 'assistant',
-      content: '阿姨、叔叔好！我是您的 24 小时 AI 健康管家。无论是体检化验单看不懂、血压波动、呼吸机佩戴、还是吃药饮食该注意什么，您随时都可以问我！',
+      content: '阿姨、叔叔好！我是您的 24 小时全能家庭助手。无论是健康养生、做菜做饭、生活常识、睡眠鼻炎，还是想发语音聊聊天，您随时都可以问我！',
       time: '刚刚',
     },
   ]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const profile = PARENT_HEALTH_PROFILES[selectedParent] || PARENT_HEALTH_PROFILES.mom;
@@ -199,8 +205,95 @@ export default function ElderPage() {
     reader.readAsDataURL(file);
   };
 
-  // AI Chat Handler
-  const handleSendMessage = async (textToSend?: string) => {
+  // Voice Synthesis (朗读回答)
+  const speakText = (text: string, msgId?: string) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('当前手机浏览器不支持语音朗读，请尝试在 Safari 或 Chrome 中打开');
+      return;
+    }
+
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      if (speakingId === msgId) {
+        setSpeakingId(null);
+        return;
+      }
+    }
+
+    const cleanText = text.replace(/[*#`\-_[\]]/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'zh-CN';
+    utterance.rate = 0.95; // 稍慢、清晰亲切
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => {
+      if (msgId) setSpeakingId(msgId);
+    };
+    utterance.onend = () => {
+      setSpeakingId(null);
+    };
+    utterance.onerror = () => {
+      setSpeakingId(null);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Voice Input (发语音 / 语音转文字)
+  const startVoiceInput = () => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('您的浏览器暂未支持直接语音录音，推荐直接打字或使用手机输入法键盘自带的语音麦克风（转文字）哦！');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'zh-CN';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setChatInput(transcript);
+          handleSendMessage(transcript, true); // 发送并朗读回复
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech error:', event.error);
+        setIsListening(false);
+        if (event.error === 'not-allowed') {
+          alert('请在手机浏览器设置中允许麦克风权限后重试。');
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error('Speech init error:', err);
+      setIsListening(false);
+    }
+  };
+
+  // AI Chat Handler (支持文字和语音)
+  const handleSendMessage = async (textToSend?: string, isVoice: boolean = false) => {
     const query = textToSend || chatInput.trim();
     if (!query || chatLoading) return;
 
@@ -223,22 +316,26 @@ export default function ElderPage() {
         body: JSON.stringify({
           messages: newHistory.map((m) => ({
             role: m.role,
-            content: `【咨询者：${profile.memberName}，当前重点慢病关注：${profile.visitGuide.reason}】\n用户提问：${m.content}`,
+            content: m.content,
           })),
         }),
       });
 
       const data = await res.json();
       if (data.success && data.reply) {
+        const newReplyId = 'a-' + Date.now();
         setChatMessages((prev) => [
           ...prev,
           {
-            id: 'a-' + Date.now(),
+            id: newReplyId,
             role: 'assistant',
             content: data.reply,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           },
         ]);
+        if (isVoice) {
+          speakText(data.reply, newReplyId);
+        }
       } else {
         throw new Error('AI 服务暂不可用');
       }
@@ -248,7 +345,7 @@ export default function ElderPage() {
         {
           id: 'a-' + Date.now(),
           role: 'assistant',
-          content: '抱歉，网络连接稍微有点慢。关于您的健康情况，请遵医嘱按时服药、饮食清淡少盐、多喝温开水。如有紧急不适请及时联系家人或就医。',
+          content: '您好！遇到任何生活健康疑问都可以问我，日常多喝温水、注意休息保暖哦！',
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
@@ -284,165 +381,148 @@ export default function ElderPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] text-stone-900 flex flex-col select-none pb-12">
-      {/* Elderly Top Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-2 border-amber-200 shadow-sm px-4 sm:px-6 py-3">
+    <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col select-none pb-12">
+      {/* Elderly Top Bar - Clean & Elegant */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs px-4 sm:px-6 py-3">
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
-          {/* Elder Brand Logo */}
-          <div className="flex items-center gap-2">
+          {/* Brand Logo */}
+          <div className="flex items-center gap-2.5">
             <span className="text-2xl">❤️</span>
             <div className="leading-tight">
-              <span className="font-extrabold text-base sm:text-lg text-amber-950 tracking-tight block">
-                爸妈健康管家
+              <span className="font-bold text-base sm:text-lg text-stone-900 tracking-tight block">
+                家庭健康管家
               </span>
-              <span className="text-[10px] sm:text-xs font-bold text-amber-700 block">
-                专属适老化大字版
+              <span className="text-[11px] font-medium text-stone-500 block">
+                爸妈专属贴心版
               </span>
             </div>
           </div>
 
-          {/* Parent Switcher (Mom / Dad) */}
-          <div className="flex items-center bg-stone-100 p-1 rounded-2xl border-2 border-amber-200 shadow-inner">
+          {/* Parent Switcher (Mom / Dad - Young middle-aged avatars) */}
+          <div className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200">
             <button
               onClick={() => setSelectedParent('mom')}
-              className={`flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl font-black text-base sm:text-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg font-bold text-sm sm:text-base transition-all ${
                 selectedParent === 'mom'
-                  ? 'bg-amber-600 text-white shadow-md shadow-amber-600/30 scale-105'
+                  ? 'bg-stone-900 text-white shadow-xs'
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <span className="text-xl">👵</span>
+              <span className="text-lg">👩</span>
               <span>妈妈面板</span>
             </button>
 
             <button
               onClick={() => setSelectedParent('dad')}
-              className={`flex items-center gap-1.5 px-3.5 sm:px-5 py-2 rounded-xl font-black text-base sm:text-lg transition-all ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-lg font-bold text-sm sm:text-base transition-all ${
                 selectedParent === 'dad'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 scale-105'
+                  ? 'bg-stone-900 text-white shadow-xs'
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              <span className="text-xl">👴</span>
+              <span className="text-lg">👨</span>
               <span>爸爸面板</span>
             </button>
           </div>
 
-          {/* Emergency / Help Pill */}
-          <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-800">
-            <AlertCircle className="w-4 h-4 text-rose-600" />
-            <span>紧急呼救: 120</span>
+          {/* Emergency Pill */}
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700">
+            <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+            <span>急救: 120</span>
           </div>
         </div>
       </header>
 
-      {/* 4 Big Main Function Tabs for Elders */}
+      {/* 4 Main Function Tabs - Minimalist & Refined */}
       <div className="max-w-3xl mx-auto w-full px-4 pt-4">
-        <div className="grid grid-cols-4 gap-2 sm:gap-3 bg-white p-2 rounded-3xl border-2 border-amber-200 shadow-md">
+        <div className="grid grid-cols-4 gap-2 bg-white p-1.5 rounded-2xl border border-stone-200/80 shadow-xs">
           <button
             onClick={() => setActiveTab('checkin')}
-            className={`flex flex-col items-center justify-center py-3 px-1 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-xl transition-all ${
               activeTab === 'checkin'
-                ? 'bg-gradient-to-b from-amber-500 to-amber-600 text-white font-black shadow-lg shadow-amber-500/25 scale-[1.02]'
-                : 'text-stone-700 hover:bg-stone-50 font-bold'
+                ? 'bg-stone-900 text-white font-bold shadow-xs'
+                : 'text-stone-600 hover:bg-stone-50 font-medium'
             }`}
           >
-            <span className="text-2xl sm:text-3xl mb-1">📸</span>
-            <span className="text-sm sm:text-base">拍照打卡</span>
+            <span className="text-xl sm:text-2xl mb-1">📸</span>
+            <span className="text-xs sm:text-sm">拍照打卡</span>
           </button>
 
           <button
             onClick={() => setActiveTab('exam')}
-            className={`flex flex-col items-center justify-center py-3 px-1 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-xl transition-all ${
               activeTab === 'exam'
-                ? 'bg-gradient-to-b from-emerald-600 to-teal-700 text-white font-black shadow-lg shadow-emerald-600/25 scale-[1.02]'
-                : 'text-stone-700 hover:bg-stone-50 font-bold'
+                ? 'bg-stone-900 text-white font-bold shadow-xs'
+                : 'text-stone-600 hover:bg-stone-50 font-medium'
             }`}
           >
-            <span className="text-2xl sm:text-3xl mb-1">📋</span>
-            <span className="text-sm sm:text-base">体检对比</span>
+            <span className="text-xl sm:text-2xl mb-1">📋</span>
+            <span className="text-xs sm:text-sm">体检对比</span>
           </button>
 
           <button
             onClick={() => setActiveTab('alerts')}
-            className={`flex flex-col items-center justify-center py-3 px-1 rounded-2xl transition-all relative ${
+            className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-xl transition-all relative ${
               activeTab === 'alerts'
-                ? 'bg-gradient-to-b from-rose-500 to-rose-600 text-white font-black shadow-lg shadow-rose-500/25 scale-[1.02]'
-                : 'text-stone-700 hover:bg-stone-50 font-bold'
+                ? 'bg-stone-900 text-white font-bold shadow-xs'
+                : 'text-stone-600 hover:bg-stone-50 font-medium'
             }`}
           >
             {abnormalMetrics.length > 0 && (
-              <span className="absolute top-1.5 right-2 w-3 h-3 bg-amber-400 rounded-full ring-2 ring-white animate-pulse" />
+              <span className="absolute top-1.5 right-2 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white" />
             )}
-            <span className="text-2xl sm:text-3xl mb-1">⚠️</span>
-            <span className="text-sm sm:text-base">就医指南</span>
+            <span className="text-xl sm:text-2xl mb-1">⚠️</span>
+            <span className="text-xs sm:text-sm">就医指南</span>
           </button>
 
           <button
             onClick={() => setActiveTab('ai')}
-            className={`flex flex-col items-center justify-center py-3 px-1 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-xl transition-all ${
               activeTab === 'ai'
-                ? 'bg-gradient-to-b from-purple-600 to-indigo-700 text-white font-black shadow-lg shadow-purple-600/25 scale-[1.02]'
-                : 'text-stone-700 hover:bg-stone-50 font-bold'
+                ? 'bg-teal-800 text-white font-bold shadow-xs'
+                : 'text-stone-600 hover:bg-stone-50 font-medium'
             }`}
           >
-            <span className="text-2xl sm:text-3xl mb-1">🤖</span>
-            <span className="text-sm sm:text-base">问问AI</span>
+            <span className="text-xl sm:text-2xl mb-1">💬</span>
+            <span className="text-xs sm:text-sm">家庭助手</span>
           </button>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <main className="max-w-3xl mx-auto w-full px-4 pt-5 flex-1">
+      <main className="max-w-3xl mx-auto w-full px-4 pt-4 flex-1">
         {/* ========================================================
-            TAB 1: 📸 拍照打卡 (保留原本针对长辈的巨大触控卡片)
+            TAB 1: 📸 拍照打卡 (清爽大字卡片，已删除问候栏目)
            ======================================================== */}
         {activeTab === 'checkin' && (
-          <div className="space-y-5 animate-fade-in">
-            {/* Greeting Card */}
-            <div className="bg-gradient-to-r from-amber-100 via-amber-50 to-orange-50 border-2 border-amber-300 rounded-3xl p-5 flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-3.5">
-                <span className="text-4xl">{selectedParent === 'mom' ? '👵' : '👴'}</span>
-                <div>
-                  <h2 className="text-2xl font-black text-amber-950">
-                    {selectedParent === 'mom' ? '妈妈' : '爸爸'}，今天感觉怎么样？
-                  </h2>
-                  <p className="text-sm font-bold text-amber-800 mt-0.5">
-                    {selectedParent === 'mom'
-                      ? '早起对准呼吸机拍一张，全家都安心'
-                      : '早晚各记一次血压，保持身心平稳'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* 3 Giant Action Cards */}
-            <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in">
+            {/* 3 Clean Action Cards */}
+            <div className="space-y-3.5">
               {/* 1. 妈妈-拍呼吸机屏幕 */}
               <div
                 onClick={() => {
                   setActiveModal('cpap');
                   setCpapResult(null);
                 }}
-                className={`cursor-pointer group relative overflow-hidden rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xl shadow-amber-500/20 active:scale-[0.98] transition-all border-4 ${
-                  selectedParent === 'mom' ? 'border-amber-300 ring-4 ring-amber-400/40' : 'border-amber-200'
-                } flex items-center gap-5`}
+                className={`cursor-pointer group relative overflow-hidden rounded-2xl p-5 sm:p-6 bg-white border transition-all active:scale-[0.99] shadow-xs hover:shadow-sm ${
+                  selectedParent === 'mom' ? 'border-amber-400/80 ring-2 ring-amber-400/20' : 'border-stone-200/90'
+                } flex items-center gap-4.5`}
               >
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-white/20 flex items-center justify-center text-4xl sm:text-5xl shrink-0 backdrop-blur-md shadow-inner">
+                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-amber-50 text-amber-800 flex items-center justify-center text-3xl sm:text-4xl shrink-0 border border-amber-100">
                   🫁
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-3 py-0.5 rounded-full bg-white text-amber-950 font-black text-xs sm:text-sm">
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold text-xs">
                       妈妈重点项
                     </span>
-                    <span className="text-xs text-amber-100 font-bold">对准屏幕·拍照即识</span>
+                    <span className="text-xs text-stone-600 font-medium">对准屏幕 · 拍照即识</span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                  <h3 className="text-xl sm:text-2xl font-bold text-stone-900 leading-tight">
                     拍呼吸机屏幕打卡
                   </h3>
-                  <p className="text-amber-100 text-sm sm:text-base font-bold mt-1">
-                    自动提取昨晚使用小时、AHI、漏气量与贴合度
+                  <p className="text-stone-600 text-sm font-medium mt-1">
+                    自动提取昨晚使用小时、AHI指数、漏气量与贴合度
                   </p>
                 </div>
               </div>
@@ -453,25 +533,25 @@ export default function ElderPage() {
                   setActiveModal('bp');
                   setBpSuccess(null);
                 }}
-                className={`cursor-pointer group relative overflow-hidden rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl shadow-blue-600/20 active:scale-[0.98] transition-all border-4 ${
-                  selectedParent === 'dad' ? 'border-blue-300 ring-4 ring-blue-400/40' : 'border-blue-200'
-                } flex items-center gap-5`}
+                className={`cursor-pointer group relative overflow-hidden rounded-2xl p-5 sm:p-6 bg-white border transition-all active:scale-[0.99] shadow-xs hover:shadow-sm ${
+                  selectedParent === 'dad' ? 'border-blue-400/80 ring-2 ring-blue-400/20' : 'border-stone-200/90'
+                } flex items-center gap-4.5`}
               >
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-white/20 flex items-center justify-center text-4xl sm:text-5xl shrink-0 backdrop-blur-md shadow-inner">
+                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-blue-50 text-blue-800 flex items-center justify-center text-3xl sm:text-4xl shrink-0 border border-blue-100">
                   🩺
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-3 py-0.5 rounded-full bg-white text-blue-950 font-black text-xs sm:text-sm">
+                    <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 font-bold text-xs">
                       爸爸重点项
                     </span>
-                    <span className="text-xs text-blue-100 font-bold">超大字·一键记录</span>
+                    <span className="text-xs text-stone-600 font-medium">大字号 · 快速记录</span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                  <h3 className="text-xl sm:text-2xl font-bold text-stone-900 leading-tight">
                     记录早晚血压
                   </h3>
-                  <p className="text-blue-100 text-sm sm:text-base font-bold mt-1">
-                    输入高压与低压，自动判断是否在健康标准线
+                  <p className="text-stone-600 text-sm font-medium mt-1">
+                    输入高压与低压，自动比对健康标准范围
                   </p>
                 </div>
               </div>
@@ -482,23 +562,23 @@ export default function ElderPage() {
                   setActiveModal('meal');
                   setMealResult(null);
                 }}
-                className="cursor-pointer group relative overflow-hidden rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-xl shadow-emerald-600/20 active:scale-[0.98] transition-all border-4 border-emerald-300 flex items-center gap-5"
+                className="cursor-pointer group relative overflow-hidden rounded-2xl p-5 sm:p-6 bg-white border border-stone-200/90 hover:border-emerald-400/80 transition-all active:scale-[0.99] shadow-xs hover:shadow-sm flex items-center gap-4.5"
               >
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-white/20 flex items-center justify-center text-4xl sm:text-5xl shrink-0 backdrop-blur-md shadow-inner">
+                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center text-3xl sm:text-4xl shrink-0 border border-emerald-100">
                   🍲
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-3 py-0.5 rounded-full bg-white text-emerald-950 font-black text-xs sm:text-sm">
-                      全家控盐减脂
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-xs">
+                      全家餐饮
                     </span>
-                    <span className="text-xs text-emerald-100 font-bold">随手拍·AI看盘</span>
+                    <span className="text-xs text-stone-600 font-medium">随手拍 · 营养分析</span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                  <h3 className="text-xl sm:text-2xl font-bold text-stone-900 leading-tight">
                     拍一日三餐
                   </h3>
-                  <p className="text-emerald-100 text-sm sm:text-base font-bold mt-1">
-                    AI 营养医生帮您看咸淡和油腻，给出白话饮食建议
+                  <p className="text-stone-600 text-sm font-medium mt-1">
+                    AI 营养助手帮您看咸淡和油腻，给出白话饮食建议
                   </p>
                 </div>
               </div>
@@ -515,7 +595,7 @@ export default function ElderPage() {
             <div className="bg-white p-5 rounded-3xl border-2 border-emerald-300 shadow-sm flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-3xl">{selectedParent === 'mom' ? '👵' : '👴'}</span>
+                  <span className="text-3xl">{selectedParent === 'mom' ? '👩' : '👨'}</span>
                   <h2 className="text-2xl font-black text-stone-900">
                     {profile.memberName} · 综合体检对照看板
                   </h2>
@@ -811,22 +891,22 @@ export default function ElderPage() {
         )}
 
         {/* ========================================================
-            TAB 4: 🤖 问问 AI 健康管家 (针对长辈的 Gemini 1.5 大字对话)
+            TAB 4: 💬 24小时全能家庭助手 (生活百事 · 健康养生 · 发语音)
            ======================================================== */}
         {activeTab === 'ai' && (
-          <div className="space-y-4 animate-fade-in flex flex-col h-[calc(100vh-230px)] min-h-[500px]">
-            {/* Banner */}
-            <div className="bg-gradient-to-r from-purple-700 to-indigo-800 text-white rounded-3xl p-4 sm:p-5 shadow-lg flex items-center justify-between shrink-0">
+          <div className="space-y-3.5 animate-fade-in flex flex-col h-[calc(100vh-210px)] min-h-[500px]">
+            {/* Banner - Clean & Warm */}
+            <div className="bg-stone-900 text-white rounded-2xl p-4 sm:p-5 shadow-xs flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-3xl">
-                  🤖
+                <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center text-2xl">
+                  💬
                 </div>
                 <div>
-                  <h3 className="text-lg sm:text-xl font-black">
-                    Gemini AI 随身家庭医生顾问
+                  <h3 className="text-base sm:text-lg font-bold">
+                    24小时 全能家庭助手
                   </h3>
-                  <p className="text-xs sm:text-sm text-purple-200 font-bold">
-                    当前解答对象：{profile.memberName} · 随时问不收费 · 24小时在岗
+                  <p className="text-xs text-stone-400 font-medium mt-0.5">
+                    生活百事 · 身体健康 · 随时发语音 · 24小时在岗
                   </p>
                 </div>
               </div>
@@ -837,22 +917,22 @@ export default function ElderPage() {
                     {
                       id: 'init-1',
                       role: 'assistant',
-                      content: `${profile.memberName}好！我是您的 24 小时 AI 健康管家。无论是体检化验单看不懂、血压波动、呼吸机佩戴、还是吃药饮食该注意什么，您随时都可以问我！`,
+                      content: `叔叔、阿姨好！我是您的 24 小时全能家庭助手。健康养生、做菜做饭、生活常识、睡眠鼻炎，或者想发语音聊聊天，您随时都可以问我！`,
                       time: '刚刚',
                     },
                   ])
                 }
-                className="px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-stone-300 hover:text-white text-xs font-medium transition-colors"
               >
                 清空重聊
               </button>
             </div>
 
-            {/* Quick Questions Pills */}
+            {/* Quick Questions Pills - Clean & Subtle */}
             <div className="shrink-0 space-y-1.5">
-              <div className="text-xs font-extrabold text-stone-500 flex items-center gap-1">
-                <Sparkle className="w-3.5 h-3.5 text-purple-600" />
-                <span>点一下直接问（老人家不用费劲打字）：</span>
+              <div className="text-xs font-semibold text-stone-500 flex items-center gap-1">
+                <Sparkle className="w-3.5 h-3.5 text-teal-700" />
+                <span>点一下直接问（生活百事随时问）：</span>
               </div>
               <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                 {quickQuestions.map((q, idx) => (
@@ -860,38 +940,54 @@ export default function ElderPage() {
                     key={idx}
                     disabled={chatLoading}
                     onClick={() => handleSendMessage(q)}
-                    className="px-3.5 py-2 rounded-2xl bg-purple-50 hover:bg-purple-100 text-purple-900 border-2 border-purple-200 font-black text-xs sm:text-sm whitespace-nowrap shadow-sm transition-transform active:scale-95 disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-800 border border-stone-200/90 font-medium text-xs sm:text-sm whitespace-nowrap shadow-2xs transition-all active:scale-95 disabled:opacity-50"
                   >
-                    💬 {q}
+                    {q}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Chat Dialog Messages Container */}
-            <div className="flex-1 bg-white rounded-3xl p-4 sm:p-5 border-2 border-purple-200 shadow-inner overflow-y-auto space-y-4">
+            <div className="flex-1 bg-white rounded-2xl p-4 sm:p-5 border border-stone-200/90 shadow-2xs overflow-y-auto space-y-4">
               {chatMessages.map((m) => (
                 <div
                   key={m.id}
                   className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {m.role === 'assistant' && (
-                    <div className="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
-                      🤖
+                    <div className="w-9 h-9 rounded-xl bg-teal-800 text-white flex items-center justify-center text-base shrink-0 shadow-2xs">
+                      💬
                     </div>
                   )}
 
                   <div
-                    className={`max-w-[85%] sm:max-w-[75%] rounded-3xl p-4 sm:p-5 shadow-sm ${
+                    className={`max-w-[85%] sm:max-w-[78%] rounded-2xl p-4 shadow-2xs ${
                       m.role === 'user'
-                        ? 'bg-purple-600 text-white font-bold text-base sm:text-lg'
-                        : 'bg-stone-50 text-stone-900 font-bold text-base sm:text-lg border-2 border-stone-200'
+                        ? 'bg-stone-900 text-white font-medium text-base sm:text-lg'
+                        : 'bg-stone-100 text-stone-900 text-base sm:text-lg border border-stone-200/60'
                     }`}
                   >
-                    <p className="leading-relaxed whitespace-pre-line">{m.content}</p>
+                    <p className="leading-relaxed whitespace-pre-line font-medium">{m.content}</p>
+                    
+                    {/* Voice Readback Button for Assistant */}
+                    {m.role === 'assistant' && (
+                      <button
+                        onClick={() => speakText(m.content, m.id)}
+                        className={`mt-2.5 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border ${
+                          speakingId === m.id
+                            ? 'bg-emerald-100 text-emerald-800 border-emerald-300 animate-pulse'
+                            : 'bg-white text-stone-600 hover:text-stone-900 border-stone-200 hover:bg-stone-50'
+                        }`}
+                      >
+                        <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{speakingId === m.id ? '⏹️ 停止朗读' : '🔊 听语音回答'}</span>
+                      </button>
+                    )}
+
                     <span
-                      className={`text-xs block text-right mt-1.5 ${
-                        m.role === 'user' ? 'text-purple-200' : 'text-stone-600'
+                      className={`text-[11px] block text-right mt-1.5 ${
+                        m.role === 'user' ? 'text-stone-400' : 'text-stone-600'
                       }`}
                     >
                       {m.time}
@@ -899,25 +995,40 @@ export default function ElderPage() {
                   </div>
 
                   {m.role === 'user' && (
-                    <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
-                      {selectedParent === 'mom' ? '👵' : '👴'}
+                    <div className="w-9 h-9 rounded-xl bg-stone-200 text-stone-900 flex items-center justify-center text-lg shrink-0 border border-stone-300">
+                      {selectedParent === 'mom' ? '👩' : '👨'}
                     </div>
                   )}
                 </div>
               ))}
 
               {chatLoading && (
-                <div className="flex items-center gap-3 text-stone-600 font-bold text-base bg-stone-50 p-3.5 rounded-2xl w-fit border border-stone-200 animate-pulse">
-                  <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
-                  <span>Gemini AI 正在亲切思考健康建议...</span>
+                <div className="flex items-center gap-2.5 text-stone-600 font-medium text-sm bg-stone-100 p-3 rounded-xl w-fit border border-stone-200 animate-pulse">
+                  <Loader2 className="w-4 h-4 animate-spin text-teal-700" />
+                  <span>全能家庭助手正在贴心为您整理回答...</span>
                 </div>
               )}
 
               <div ref={chatEndRef} />
             </div>
 
-            {/* Input Bar */}
-            <div className="bg-white p-2 sm:p-3 rounded-3xl border-2 border-purple-300 shadow-md flex items-center gap-2 shrink-0">
+            {/* Input Bar with Voice Input (发语音) */}
+            <div className="bg-white p-2 rounded-2xl border border-stone-200/90 shadow-sm flex items-center gap-2 shrink-0">
+              {/* Voice Input Button */}
+              <button
+                type="button"
+                onClick={startVoiceInput}
+                className={`px-3.5 sm:px-4 py-3 rounded-xl flex items-center gap-1.5 font-bold text-sm sm:text-base transition-all shadow-xs shrink-0 ${
+                  isListening
+                    ? 'bg-rose-500 text-white animate-pulse shadow-md shadow-rose-500/30'
+                    : 'bg-emerald-700 text-white hover:bg-emerald-800 active:scale-95'
+                }`}
+                title={isListening ? '点击停止录音' : '点击发语音'}
+              >
+                <Mic className="w-5 h-5" />
+                <span>{isListening ? '倾听中...' : '发语音'}</span>
+              </button>
+
               <input
                 type="text"
                 value={chatInput}
@@ -925,17 +1036,17 @@ export default function ElderPage() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSendMessage();
                 }}
-                placeholder="请输入想问医生的任何事情（例如：早晨头晕怎么办）..."
-                className="flex-1 px-4 py-3 text-base sm:text-lg font-bold bg-stone-50 rounded-2xl border border-stone-200 outline-none focus:ring-2 focus:ring-purple-400 text-stone-900 placeholder:text-stone-600"
+                placeholder={isListening ? '正在听您说话，说完将自动发送...' : '问健康、问生活，或直接点发语音...'}
+                className="flex-1 px-3.5 py-3 text-base font-medium bg-stone-50 rounded-xl border border-stone-200 outline-none focus:border-stone-400 text-stone-900 placeholder:text-stone-600"
               />
 
               <button
                 disabled={chatLoading || !chatInput.trim()}
                 onClick={() => handleSendMessage()}
-                className="px-5 sm:px-6 py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-base sm:text-lg font-black shadow-md shadow-purple-600/30 flex items-center gap-2 transition-transform active:scale-95"
+                className="px-4 sm:px-5 py-3 rounded-xl bg-stone-900 hover:bg-stone-800 disabled:opacity-30 text-white text-sm sm:text-base font-bold flex items-center gap-1.5 transition-all shrink-0 shadow-xs"
               >
-                <span>提问</span>
-                <Send className="w-5 h-5" />
+                <span>发送</span>
+                <Send className="w-4 h-4" />
               </button>
             </div>
           </div>

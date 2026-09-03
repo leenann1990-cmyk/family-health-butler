@@ -178,35 +178,132 @@ ${recentData}
 }
 
 export async function chatWithFamilyDoctor(messages: { role: string; content: string }[]) {
-  if (!genAI) {
-    const lastMsg = messages[messages.length - 1]?.content || '';
-    if (lastMsg.includes('血压') || lastMsg.includes('高压')) {
-      return '您好！针对血压情况，老年人理想收缩压一般建议维持在 130 mmHg 以下，舒张压 80 mmHg 以下。如果早晨发现血压偏高，请先静坐休息 10 分钟后复测，切勿自行加倍吃药。记得清淡少盐、保持良好心情哦！';
+  const lastMessage = messages[messages.length - 1]?.content?.trim() || '';
+
+  // 1. If Gemini API is available, use Gemini 1.5 Flash
+  if (genAI) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-1.5-flash',
+        systemInstruction: `你是一个充满爱心、耐心、细致贴心的 24 小时全能家庭智能管家与生活伴侣。你的服务对象是家里的爸爸、妈妈和所有家人。
+长辈或家人问你任何问题都可以（不仅包含高血压慢病、睡眠呼吸暂停、日常体检、合理用药，还涵盖做菜食谱、生活常识、天气穿衣、宠物狗护理、闲聊唠嗑、心情开导等万事百事通）。
+回答准则：
+1. 称呼亲切温暖（如叔叔、阿姨，或爸爸、妈妈），语气像孝顺懂事的儿女或老友在促膝长谈；
+2. 语言通俗直白，多用大白话，拒绝生硬难懂的专业术语；
+3. 条理分明，善于使用 1、2、3 小点清晰呈现，方便长辈阅读；
+4. 每次回答最后都附带一句温暖的关心；
+5. 如果长辈有突发剧烈剧痛等危险紧急情况，温和叮嘱立即联系家人或就医。`,
+      });
+
+      const chat = model.startChat({
+        history: messages.slice(0, -1).map((m) => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        })),
+      });
+
+      const result = await chat.sendMessage(lastMessage);
+      return result.response.text();
+    } catch (err: any) {
+      console.error('Gemini Chat error:', err);
+      // Fall through to smart fallback
     }
-    if (lastMsg.includes('呼吸机') || lastMsg.includes('呼气') || lastMsg.includes('打鼾')) {
-      return '呼吸机是治疗睡眠打鼾和呼吸暂停的黄金利器！只要每晚佩戴超过 4 小时、AHI 控制在 5 次以下就是非常理想的效果。如果感觉漏气，可以稍调紧头带或调整鼻面罩位置，水盒记得每天换纯净水哦！';
-    }
-    return '您好！我是您的 24 小时 AI 家庭医生助手。针对老年人慢病管理、呼吸睡眠、高血压饮食控盐、以及爱犬健康，随时都可以问我！请问今天有什么想了解的呢？';
   }
 
-  try {
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      systemInstruction: '你是一个充满爱心、耐心、专业的全能家庭健康医生助手。你的服务对象包括老年长辈及其子女。请使用亲切、温暖、通俗易懂的语言回答健康、慢病（高血压、睡眠呼吸暂停）、饮食作息及宠物狗狗护理等问题。重要警示：遇到急性剧烈胸痛、突发意识障碍等危险情况，提醒立即拨打 120。',
-    });
+  // 2. Comprehensive intelligent conversational fallback for when API key is not yet set
+  const q = lastMessage.toLowerCase();
 
-    const chat = model.startChat({
-      history: messages.slice(0, -1).map((m) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }],
-      })),
-    });
+  // 鼻炎 / 鼻塞 / 睡眠
+  if (q.includes('鼻炎') || q.includes('鼻塞') || q.includes('打呼') || (q.includes('睡眠') && q.includes('鼻'))) {
+    return `您好！鼻炎确实会直接影响睡眠质量，您这个问题问得非常关键！
 
-    const lastMessage = messages[messages.length - 1].content;
-    const result = await chat.sendMessage(lastMessage);
-    return result.response.text();
-  } catch (err: any) {
-    console.error('Gemini Chat error:', err);
-    return '您好！我是您的家庭健康助手。日常请注意保持规律作息、清淡少盐，若有明显身体不适请及时前往医院就诊。';
+1. 为什么会影响睡眠：
+   鼻炎发作时，鼻黏膜充血肿胀、鼻涕增多，导致鼻子不通气。睡着后人会不由自主地改为“张口呼吸”，这容易引起口干舌燥、频繁起夜喝水，还会加重咽部组织塌陷，引发打鼾甚至睡眠憋醒。
+
+2. 睡前改善小妙招：
+   - 【温生理盐水洗鼻】：睡前用医用洗鼻器冲洗鼻腔，把过敏原和黏涕冲洗干净，鼻子立刻通畅很多；
+   - 【稍微垫高枕头】：枕头稍微垫高 15~20 度，促进鼻部静脉血液回流，减轻鼻黏膜水肿；
+   - 【保持卧室湿润】：秋冬或开空调时用加湿器，保持湿度在 50%~60%，避免干燥空气刺激鼻腔；
+   - 【遵医嘱用药】：如果有医生开的鼻用喷雾剂，睡前半小时按时使用。
+
+今晚睡前不妨温水泡泡脚、冲洗一下鼻腔，祝您呼吸顺畅、睡个安稳好觉！`;
   }
+
+  // 血压 / 降压药
+  if (q.includes('血压') || q.includes('高压') || q.includes('低压') || q.includes('降压药') || q.includes('头晕')) {
+    return `您好！针对血压与服药情况，给您整理了贴心建议：
+
+1. 血压标准参考：
+   老年人平稳理想血压一般建议收缩压（高压）在 130 mmHg 左右，舒张压（低压）在 80 mmHg 左右。
+
+2. 早晨血压偏高怎么办：
+   - 刚起床时人体处于“血压晨峰”，先静坐深呼吸 5~10 分钟后复测；
+   - 遵医嘱规律服药，千万不要因为一次数值偏高就自行多吃一片药；
+   - 饮食上早餐一定要少盐清淡，避免喝浓茶或咖啡。
+
+平时多留意早晚记录，保持好心情对稳定血压最管用！`;
+  }
+
+  // 呼吸机 / 漏气
+  if (q.includes('呼吸机') || q.includes('ahi') || q.includes('面罩') || q.includes('漏气')) {
+    return `您好！呼吸机是守护夜间睡眠呼吸暂停的得力助手：
+
+1. 使用达标标准：
+   - 每晚佩戴时间建议保持在 4 小时以上（达到 6 小时以上更理想）；
+   - AHI（暂停指数）控制在 5 次/小时以内即为正常效果。
+
+2. 面罩漏气怎么调：
+   - 躺下开启机器后，轻轻提拉面罩让硅胶垫充气贴合面部，再重新粘紧头带；
+   - 头带松紧以“能插入一根手指”为宜，太紧勒脸、太松漏气；
+   - 湿化水盒记得每天清洗并换新的纯净水，保持管路干净卫生。
+
+适应佩戴需要一个循序渐进的过程，坚持下去白天精神会好很多！`;
+  }
+
+  // 饮食 / 吃什么 / 做菜 / 控盐
+  if (q.includes('吃') || q.includes('菜') || q.includes('饭') || q.includes('盐') || q.includes('油') || q.includes('汤')) {
+    return `您好！健康好生活，吃好三餐最重要：
+
+1. 少盐少油原则：
+   每天食盐控制在 5 克以内（大约一小啤酒瓶盖的量），多用清蒸、白灼、炖煮，少吃油炸、熏肉和腌酱菜。
+
+2. 适老营养搭配：
+   - 优质蛋白质：清蒸鱼、去皮鸡肉、嫩豆腐、鸡蛋；
+   - 降压深色菜：菠菜、白灼菜心、芹菜、西蓝花（富含钾元素，有助排钠降压）；
+   - 粗细搭配：米饭里加一点小米、燕麦或红薯，通便又养胃。
+
+想吃哪道菜随时问我，我帮您查怎么做更健康营养！`;
+  }
+
+  // 睡眠 / 失眠 / 做梦
+  if (q.includes('失眠') || q.includes('睡不着') || q.includes('多梦') || q.includes('早醒')) {
+    return `您好！上了年纪睡眠容易变浅，别着急，试试这些安睡方法：
+
+1. 睡前放松仪式：
+   - 睡前 1 小时放下手机和电视，用 40 度左右温水泡脚 15 分钟；
+   - 晚餐七分饱，睡前 2 小时别大量喝水，减少夜间起夜；
+   - 卧室光线调暗，保持安静通风。
+
+2. 睡不着别有心理压力：
+   在床上闭目养神也是在休息，放松全身肌肉，深呼吸，身体慢慢就会沉入睡眠中。`;
+  }
+
+  // 宠物护理
+  if (q.includes('狗') || q.includes('毛孩子') || q.includes('可可') || q.includes('豆豆') || q.includes('驱虫') || q.includes('疫苗')) {
+    return `您好！家里毛孩子的健康也牵挂着全家人的心：
+
+1. 定期驱虫要记牢：
+   - 外驱（滴剂）：每月 1 次，防跳蚤和蜱虫；
+   - 内驱（药片）：每 3 个月 1 次，保护肠胃健康。
+2. 遛狗与关节保护：
+   早晚各溜达 20~30 分钟，既能带狗狗放风，也是咱们最好的散步锻炼！`;
+  }
+
+  // 天气 / 问候 / 闲聊 / 其他生活百事
+  return `您好！我是您的 24 小时全能家庭助手，也是全家人贴心的生活伙伴！
+
+您刚才问：“${lastMessage}”
+我的建议是：
+日常遇到任何生活疑问、身体小状况，或者想查查菜谱、做做保健按摩、聊聊天，都可以随时发文字或语音跟我说。
+不管是大事小事，我都 24 小时在岗为您耐心解答！请问还有什么想了解的吗？`;
 }

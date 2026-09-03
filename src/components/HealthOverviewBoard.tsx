@@ -61,8 +61,8 @@ export default function HealthOverviewBoard({ data }: Props) {
         </h2>
 
         <p className="text-emerald-100/90 text-sm sm:text-base leading-relaxed max-w-3xl">
-          👵 <strong>妈妈</strong>：昨夜呼吸机佩戴 <strong>{latestCpap?.usageHours || 6.4}小时</strong>，AHI 仅 <strong>{latestCpap?.ahi || 0.9}次/小时</strong>（优于标准），面罩气密性极佳；<br className="hidden sm:inline" />
-          👴 <strong>爸爸</strong>：今晨血压 <strong>{latestBp?.systolic || 128}/{latestBp?.diastolic || 78} mmHg</strong>（心率 {latestBp?.heartRate || 72}），{isBpNormal ? '控制在安全范围内' : '略偏高，请提醒按时服药控盐'}；<br className="hidden sm:inline" />
+          👩 <strong>妈妈</strong>：昨夜呼吸机佩戴 <strong>{latestCpap?.usageHours || 6.4}小时</strong>，AHI 仅 <strong>{latestCpap?.ahi || 0.9}次/小时</strong>（优于标准），面罩气密性极佳；<br className="hidden sm:inline" />
+          👨 <strong>爸爸</strong>：今晨血压 <strong>{latestBp?.systolic || 128}/{latestBp?.diastolic || 78} mmHg</strong>（心率 {latestBp?.heartRate || 72}），{isBpNormal ? '控制在安全范围内' : '略偏高，请提醒按时服药控盐'}；<br className="hidden sm:inline" />
           🐶 <strong>毛孩子</strong>：体外驱虫已覆盖，无过敏反应。
         </p>
 
@@ -87,7 +87,7 @@ export default function HealthOverviewBoard({ data }: Props) {
         <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="text-3xl p-2 rounded-2xl bg-amber-50 border border-amber-100">👵</div>
+              <div className="text-3xl p-2 rounded-2xl bg-amber-50 border border-amber-100">👩</div>
               <div>
                 <h3 className="font-bold text-stone-900 text-lg">妈妈 · 睡眠呼吸机</h3>
                 <span className="text-xs text-stone-600">夜间呼吸暂停 (OSAHS) 监测</span>
@@ -130,7 +130,7 @@ export default function HealthOverviewBoard({ data }: Props) {
         <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="text-3xl p-2 rounded-2xl bg-blue-50 border border-blue-100">👴</div>
+              <div className="text-3xl p-2 rounded-2xl bg-blue-50 border border-blue-100">👨</div>
               <div>
                 <h3 className="font-bold text-stone-900 text-lg">爸爸 · 血压监控</h3>
                 <span className="text-xs text-stone-600">原发性高血压 2 级日常管理</span>
@@ -227,13 +227,13 @@ export default function HealthOverviewBoard({ data }: Props) {
         >
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-xl bg-amber-600 text-white flex items-center justify-center text-2xl shadow-md shadow-amber-600/20">
-              👵
+              👩
             </div>
             <div>
               <div className="font-bold text-stone-900 text-base group-hover:text-amber-900">
-                进入长辈极简模式
+                进入爸妈专属模式
               </div>
-              <p className="text-xs text-amber-800/80">大字体 · 拍照识别 · 免密打卡</p>
+              <p className="text-xs text-amber-800/80">大字体 · 拍照识别 · 24小时语音伴聊</p>
             </div>
           </div>
           <ChevronRight className="w-5 h-5 text-amber-600 group-hover:translate-x-1 transition-transform" />
